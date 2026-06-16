@@ -1,7 +1,19 @@
 import { App as CapacitorApp } from '@capacitor/app';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ListFilter, RefreshCcw, Search } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { RefreshCcw, Search } from 'lucide-react';
+import {
+  type TouchEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { getMyCustomers, getMySummary, reportCall } from '@/api/endpoints';
 import { CustomerCard } from '@/components/CustomerCard';
 import { EmptyState } from '@/components/EmptyState';
@@ -19,10 +31,24 @@ import { queueCallReport } from '@/offline/callQueue';
 import type { ActiveCall, Customer } from '@/types';
 import { formatDuration, getErrorMessage } from '@/utils/format';
 
+type SearchMode = 'phoneLike' | 'nameLike' | 'companyLike';
+
+const PAGE_SIZE = 10;
+const searchModes: Array<{ value: SearchMode; label: string }> = [
+  { value: 'phoneLike', label: '手机匹配' },
+  { value: 'nameLike', label: '姓名匹配' },
+  { value: 'companyLike', label: '公司匹配' },
+];
+
 export function CustomersPage() {
   const { session } = useAuth();
   const queryClient = useQueryClient();
-  const [phoneLike, setPhoneLike] = useState('');
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const [searchText, setSearchText] = useState('');
+  const [submittedSearch, setSubmittedSearch] = useState('');
+  const [searchMode, setSearchMode] = useState<SearchMode>('phoneLike');
+  const [pullDistance, setPullDistance] = useState(0);
   const [activeCall, setActiveCall] = useState<ActiveCall | null>(null);
   const [feedbackCustomer, setFeedbackCustomer] = useState<Customer | null>(
     null,
@@ -32,9 +58,29 @@ export function CustomersPage() {
   const [endedAt, setEndedAt] = useState<string | undefined>();
   const [message, setMessage] = useState('');
 
-  const customersQuery = useQuery({
-    queryKey: ['customers', phoneLike],
-    queryFn: () => getMyCustomers({ phoneLike, pagesize: 50 }),
+  const customerSearch = useMemo(
+    () => ({
+      nameLike: searchMode === 'nameLike' ? submittedSearch : undefined,
+      phoneLike: searchMode === 'phoneLike' ? submittedSearch : undefined,
+      companyLike: searchMode === 'companyLike' ? submittedSearch : undefined,
+    }),
+    [searchMode, submittedSearch],
+  );
+
+  const customersQuery = useInfiniteQuery({
+    queryKey: ['customers', customerSearch],
+    initialPageParam: 0,
+    queryFn: ({ pageParam }) =>
+      getMyCustomers({
+        ...customerSearch,
+        page: pageParam,
+        pagesize: PAGE_SIZE,
+        sort: '-id',
+      }),
+    getNextPageParam: (lastPage) => {
+      const loaded = (lastPage.page + 1) * lastPage.pageSize;
+      return loaded < lastPage.total ? lastPage.page + 1 : undefined;
+    },
   });
 
   const summaryQuery = useQuery({
@@ -61,8 +107,10 @@ export function CustomersPage() {
     },
   });
 
-  const customers = customersQuery.data?.list ?? [];
+  const customers =
+    customersQuery.data?.pages.flatMap((page) => page.list) ?? [];
   const summary = summaryQuery.data;
+  const isPulling = pullDistance > 0 || customersQuery.isRefetching;
 
   const connectionRate = useMemo(() => {
     if (!summary?.totalCalls) {
@@ -78,6 +126,10 @@ export function CustomersPage() {
     setDuration(0);
     setStartedAt(undefined);
     setEndedAt(undefined);
+  }
+
+  function handleSearch() {
+    setSubmittedSearch(searchText.trim());
   }
 
   async function handleCall(customer: Customer) {
@@ -142,8 +194,81 @@ export function CustomersPage() {
     return () => cleanup?.();
   }, [activeCall, openFeedbackFromCall]);
 
+  useEffect(() => {
+    const node = loadMoreRef.current;
+    if (!node) {
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      const [entry] = entries;
+      if (
+        entry.isIntersecting &&
+        customersQuery.hasNextPage &&
+        !customersQuery.isFetchingNextPage
+      ) {
+        void customersQuery.fetchNextPage();
+      }
+    });
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [
+    customersQuery.hasNextPage,
+    customersQuery.isFetchingNextPage,
+    customersQuery.fetchNextPage,
+  ]);
+
+  function handleTouchStart(event: TouchEvent<HTMLDivElement>) {
+    if (window.scrollY <= 0) {
+      touchStartY.current = event.touches[0]?.clientY ?? null;
+    }
+  }
+
+  function handleTouchMove(event: TouchEvent<HTMLDivElement>) {
+    if (touchStartY.current === null || window.scrollY > 0) {
+      return;
+    }
+
+    const currentY = event.touches[0]?.clientY ?? 0;
+    const distance = Math.max(0, Math.min(96, currentY - touchStartY.current));
+    setPullDistance(distance);
+  }
+
+  function handleTouchEnd() {
+    const shouldRefresh = pullDistance >= 56;
+    touchStartY.current = null;
+    setPullDistance(0);
+
+    if (shouldRefresh) {
+      void customersQuery.refetch();
+      void summaryQuery.refetch();
+    }
+  }
+
   return (
-    <div className="page-stack">
+    <div
+      className="page-stack"
+      onTouchEnd={handleTouchEnd}
+      onTouchMove={handleTouchMove}
+      onTouchStart={handleTouchStart}
+    >
+      {isPulling ? (
+        <p
+          className="sync-line pull-sync-line"
+          style={{ transform: `translateY(${Math.min(pullDistance, 56)}px)` }}
+        >
+          <RefreshCcw
+            aria-hidden
+            className={customersQuery.isRefetching ? 'spin' : ''}
+            size={18}
+          />
+          {customersQuery.isRefetching
+            ? '正在同步最新公海库...'
+            : '下拉刷新客户库'}
+        </p>
+      ) : null}
+
       <section className="call-dashboard">
         <div className="greeting-block">
           <h1>上午好，{session?.user.realName ?? session?.user.username}</h1>
@@ -174,30 +299,34 @@ export function CustomersPage() {
         <label className="search-box">
           <Search aria-hidden size={24} />
           <input
-            inputMode="tel"
-            onChange={(event) => setPhoneLike(event.target.value)}
+            inputMode={searchMode === 'phoneLike' ? 'tel' : 'text'}
+            onChange={(event) => setSearchText(event.target.value)}
             placeholder="搜索姓名、手机、公司..."
-            value={phoneLike}
+            value={searchText}
           />
         </label>
-        <button aria-label="筛选" className="filter-button" type="button">
-          <ListFilter aria-hidden size={26} />
+        <button
+          aria-label="搜索"
+          className="filter-button search-submit-button"
+          onClick={handleSearch}
+          type="button"
+        >
+          <Search aria-hidden size={26} />
         </button>
       </div>
 
       <div className="sort-pills">
-        <button className="active" type="button">
-          ID ↓
-        </button>
-        <button type="button">ID ↑</button>
-        <button type="button">姓名匹配</button>
-        <button type="button">手机匹配</button>
+        {searchModes.map((mode) => (
+          <button
+            className={searchMode === mode.value ? 'active' : ''}
+            key={mode.value}
+            onClick={() => setSearchMode(mode.value)}
+            type="button"
+          >
+            {mode.label}
+          </button>
+        ))}
       </div>
-
-      <p className="sync-line">
-        <RefreshCcw aria-hidden size={18} />
-        正在同步最新公海库...
-      </p>
 
       {message ? <p className="notice">{message}</p> : null}
 
@@ -218,6 +347,20 @@ export function CustomersPage() {
             onCall={handleCall}
           />
         ))}
+        <div className="load-more-sentinel" ref={loadMoreRef}>
+          {customersQuery.isFetchingNextPage ? '加载更多客户...' : null}
+          {!customersQuery.hasNextPage && customers.length > 0
+            ? '没有更多客户了'
+            : null}
+          {customersQuery.isFetchNextPageError ? (
+            <button
+              onClick={() => customersQuery.fetchNextPage()}
+              type="button"
+            >
+              加载失败，点击重试
+            </button>
+          ) : null}
+        </div>
       </section>
 
       <FeedbackSheet

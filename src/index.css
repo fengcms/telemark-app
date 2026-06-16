@@ -425,6 +425,12 @@ a {
   box-shadow: var(--shadow);
 }
 
+.search-submit-button {
+  color: #ffffff;
+  background: var(--primary);
+  box-shadow: 0 14px 28px rgba(11, 92, 255, 0.24);
+}
+
 .sort-pills,
 .history-tabs,
 .quick-remarks {
@@ -465,10 +471,50 @@ a {
   font-size: 14px;
 }
 
+.pull-sync-line {
+  position: sticky;
+  top: 72px;
+  z-index: 3;
+  width: fit-content;
+  margin: -10px auto 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--shadow);
+  transition: transform 160ms ease;
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .card-list {
   display: flex;
   flex-direction: column;
   gap: 18px;
+}
+
+.load-more-sentinel {
+  min-height: 40px;
+  display: grid;
+  place-items: center;
+  color: #7b8495;
+  font-size: 14px;
+}
+
+.load-more-sentinel button {
+  border: 0;
+  border-radius: 999px;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 8px 14px;
+  font-weight: 800;
 }
 
 .customer-card {
@@ -1019,6 +1065,7 @@ a {
   color: var(--ink);
   background: transparent;
   text-align: left;
+  cursor: pointer;
 }
 
 .setting-icon {
@@ -1056,4 +1103,75 @@ a {
 
 .settings-card > .secondary-button {
   display: none;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: end center;
+  padding: 18px;
+  background: rgba(15, 23, 42, 0.42);
+  backdrop-filter: blur(8px);
+}
+
+.app-modal {
+  width: min(100%, 394px);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+  border-radius: 28px;
+  background: #ffffff;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.modal-header p,
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-header p {
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.modal-header h2 {
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.app-modal .primary-button {
+  width: 100%;
+}
+
+.version-copy {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  color: #5f6b7c;
+  background: #f6f8fc;
+  line-height: 1.7;
+}
+
+.version-copy strong {
+  color: var(--primary);
+  font-size: 22px;
+}
+
+.version-copy p {
+  margin: 0;
 }
