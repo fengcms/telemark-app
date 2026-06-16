@@ -7,3 +7,6 @@ project(':capacitor-app').projectDir = new File('../node_modules/.pnpm/@capacito
 
 include ':capacitor-network'
 project(':capacitor-network').projectDir = new File('../node_modules/.pnpm/@capacitor+network@8.0.1_@capacitor+core@8.4.0/node_modules/@capacitor/network/android')
+
+include ':haige-capacitor-call-log'
+project(':haige-capacitor-call-log').projectDir = new File('../node_modules/.pnpm/@haige+capacitor-call-log@file+plugins+capacitor-call-log_@capacitor+core@8.4.0/node_modules/@haige/capacitor-call-log/android')

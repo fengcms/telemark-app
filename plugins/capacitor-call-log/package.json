@@ -1,0 +1,29 @@
+{
+  "name": "@haige/capacitor-call-log",
+  "version": "0.1.0",
+  "description": "Internal Capacitor plugin for reading Android call log entries.",
+  "main": "dist/plugin.cjs.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": [
+    "android/src/main/",
+    "android/build.gradle",
+    "src/",
+    "dist/"
+  ],
+  "keywords": [
+    "capacitor",
+    "call-log",
+    "android"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  },
+  "capacitor": {
+    "android": {
+      "src": "android"
+    }
+  }
+}

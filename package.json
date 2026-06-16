@@ -16,6 +16,7 @@
 		"@capacitor/app": "^8.1.0",
 		"@capacitor/core": "^8.4.0",
 		"@capacitor/network": "^8.0.1",
+		"@haige/capacitor-call-log": "file:plugins/capacitor-call-log",
 		"@tanstack/react-query": "^5.101.0",
 		"lucide-react": "^1.18.0",
 		"react": "^19.2.6",

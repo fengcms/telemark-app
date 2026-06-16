@@ -1,4 +1,4 @@
-package com.haigetelemark.app.plugins;
+package com.haigetelemark.calllog;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
