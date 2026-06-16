@@ -1,0 +1,61 @@
+import { Capacitor, registerPlugin } from '@capacitor/core';
+import { normalizePhone } from '@/utils/format';
+
+export type NativeCallLogEntry = {
+  number: string;
+  duration: number;
+  startedAt: string;
+  endedAt: string;
+  type: number;
+};
+
+type CallLogPlugin = {
+  requestPermissions: () => Promise<{ granted: boolean }>;
+  getLatestForNumber: (options: {
+    phone: string;
+    since?: string;
+  }) => Promise<{ entry: NativeCallLogEntry | null }>;
+};
+
+const NativeCallLog = registerPlugin<CallLogPlugin>('CallLog');
+
+export async function requestCallLogPermission() {
+  if (Capacitor.getPlatform() !== 'android') {
+    return false;
+  }
+
+  try {
+    const result = await NativeCallLog.requestPermissions();
+    return result.granted;
+  } catch {
+    return false;
+  }
+}
+
+export async function getLatestCallForNumber(phone: string, since?: string) {
+  if (Capacitor.getPlatform() !== 'android') {
+    return null;
+  }
+
+  try {
+    const result = await NativeCallLog.getLatestForNumber({
+      phone: normalizePhone(phone),
+      since,
+    });
+    return result.entry;
+  } catch {
+    return null;
+  }
+}
+
+export function createManualCallEntry(startedAt: string) {
+  const start = new Date(startedAt).getTime();
+  const end = Date.now();
+  const duration = Math.max(0, Math.round((end - start) / 1000));
+
+  return {
+    duration,
+    startedAt,
+    endedAt: new Date(end).toISOString(),
+  };
+}

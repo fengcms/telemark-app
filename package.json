@@ -10,12 +10,17 @@
 		"lint": "biome lint ./src",
 		"format": "biome format --write ./src",
 		"check": "biome check --write ./src",
-    "sync": "npx cap sync"
+		"sync": "npx cap sync"
 	},
 	"dependencies": {
+		"@capacitor/app": "^8.1.0",
 		"@capacitor/core": "^8.4.0",
+		"@capacitor/network": "^8.0.1",
+		"@tanstack/react-query": "^5.101.0",
+		"lucide-react": "^1.18.0",
 		"react": "^19.2.6",
-		"react-dom": "^19.2.6"
+		"react-dom": "^19.2.6",
+		"react-router-dom": "^7.17.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.0",

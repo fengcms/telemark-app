@@ -8,15 +8,30 @@ importers:
 
   .:
     dependencies:
+      '@capacitor/app':
+        specifier: ^8.1.0
+        version: 8.1.0(@capacitor/core@8.4.0)
       '@capacitor/core':
         specifier: ^8.4.0
         version: 8.4.0
+      '@capacitor/network':
+        specifier: ^8.0.1
+        version: 8.0.1(@capacitor/core@8.4.0)
+      '@tanstack/react-query':
+        specifier: ^5.101.0
+        version: 5.101.0(react@19.2.7)
+      lucide-react:
+        specifier: ^1.18.0
+        version: 1.18.0(react@19.2.7)
       react:
         specifier: ^19.2.6
         version: 19.2.7
       react-dom:
         specifier: ^19.2.6
         version: 19.2.7(react@19.2.7)
+      react-router-dom:
+        specifier: ^7.17.0
+        version: 7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.5.0
@@ -113,6 +128,11 @@ packages:
     peerDependencies:
       '@capacitor/core': ^8.4.0
 
+  '@capacitor/app@8.1.0':
+    resolution: {integrity: sha512-MlmttTOWHDedr/G4SrhNRxsXMqY+R75S4MM4eIgzsgCzOYhb/MpCkA5Q3nuOCfL1oHm26xjUzqZ5aupbOwdfYg==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
+
   '@capacitor/cli@8.4.0':
     resolution: {integrity: sha512-5Z9RKHxiqJYRTLrfMeZmzR4qrlg5B85MxsWZ5goyXsLkO3bgpW9a1qV/6fR1SX9s5gwLza5y7PZVwITl/hDJ7g==}
     engines: {node: '>=22.0.0'}
@@ -120,6 +140,11 @@ packages:
 
   '@capacitor/core@8.4.0':
     resolution: {integrity: sha512-LrS1xPIrqLtJABBIPDGXxxKmI9OyesrzWw8DiHbxhSC9JoiLUleUAJlX1a0LWIVLRbuY4Szgf9huFeRqYH2SAQ==}
+
+  '@capacitor/network@8.0.1':
+    resolution: {integrity: sha512-9xK/FHFmzKGanB6BdoSZOzXk8vF0OFVQSQ4PAsIrzAzLuXHryO317qy8dcHVpgxYeuZq2noI0My9z1DvVDi/9w==}
+    peerDependencies:
+      '@capacitor/core': '>=8.0.0'
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -273,6 +298,14 @@ packages:
   '@rolldown/pluginutils@1.0.1':
     resolution: {integrity: sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw==}
 
+  '@tanstack/query-core@5.101.0':
+    resolution: {integrity: sha512-cQetA74EB+seWySv1TTKr828TnP0u39m6LykwDXIo84SNortpDkp30TMEjkqtYCNP9c40uT/iwl6MLiufEt0Ow==}
+
+  '@tanstack/react-query@5.101.0':
+    resolution: {integrity: sha512-rLlJXSpkqfizLWgkR5+eLeIk0MvTx/meEIR7LRjxic+qxiQP8zVjq7BqQkiCMNLQBlLfuOLqqr6KO5GtrDlmSg==}
+    peerDependencies:
+      react: ^18 || ^19
+
   '@tybys/wasm-util@0.10.2':
     resolution: {integrity: sha512-RoBvJ2X0wuKlWFIjrwffGw1IqZHKQqzIchKaadZZfnNpsAYp2mM0h36JtPCjNDAHGgYez/15uMBpfGwchhiMgg==}
 
@@ -361,6 +394,10 @@ packages:
 
   commander@12.1.0:
     resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
+
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
     engines: {node: '>=18'}
 
   cross-spawn@7.0.6:
@@ -546,6 +583,11 @@ packages:
     resolution: {integrity: sha512-RPimw/7aMdv2oqRrxKwvZXcPfwBrn/JZ2xYcY9Hus/6LaS3VOAKVWKWgNLCFSiOm1ESXinjsDlidVU7JlnCN2A==}
     engines: {node: 20 || >=22}
 
+  lucide-react@1.18.0:
+    resolution: {integrity: sha512-LZDb7H/0YfM+RJncD0hDQRCAu+vSGODqpe35TuVI8EuXaRjkczbsx7p8dY4J87F/MUSj6bpYqeI8nw8qXaAdmA==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
+
   minimatch@10.2.5:
     resolution: {integrity: sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==}
     engines: {node: 18 || 20 || >=22}
@@ -613,6 +655,23 @@ packages:
     peerDependencies:
       react: ^19.2.7
 
+  react-router-dom@7.17.0:
+    resolution: {integrity: sha512-fyU2yjGups/hE6Xz0I5ZYbVL8Gx29eCjgpHaRaTaVU+OOAdfRX05KsvyRm0GO8YQwOkhpU3MurW1jyMUJn+zSw==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+
+  react-router@7.17.0:
+    resolution: {integrity: sha512-FDELK7rTMlCHO5+reyXsPlmfr7N1F91lPHsWYfMEGQm/KQ+F4JFM8jGoeQDmDvdTs93Fw9aSilH+uKRb4/jXvQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+
   react@19.2.7:
     resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
     engines: {node: '>=0.10.0'}
@@ -648,6 +707,9 @@ packages:
     resolution: {integrity: sha512-rUCObTnP32Q08R2uuIrt7r9PlEonuTmtuXYcW6s5kjdlj3xbnwe+21yXptAUYcMAABLkYYTtnmzb3w3EDZfueA==}
     engines: {node: '>=10'}
     hasBin: true
+
+  set-cookie-parser@2.7.2:
+    resolution: {integrity: sha512-oeM1lpU/UvhTxw+g3cIfxXHyJRc/uidd3yK1P242gzHds0udQBYzs3y8j4gCCW+ZJ7ad0yctld8RYO+bdurlvw==}
 
   shebang-command@2.0.0:
     resolution: {integrity: sha512-kHxr2zZpYtdmrN1qDjrrX/Z1rR1kG8Dx+gkpK1G4eXmvXswmcE1hTWBWYUzlraYw1/yZp6YuDY77YtvbN0dmDA==}
@@ -835,6 +897,10 @@ snapshots:
     dependencies:
       '@capacitor/core': 8.4.0
 
+  '@capacitor/app@8.1.0(@capacitor/core@8.4.0)':
+    dependencies:
+      '@capacitor/core': 8.4.0
+
   '@capacitor/cli@8.4.0':
     dependencies:
       '@ionic/cli-framework-output': 2.2.8
@@ -860,6 +926,10 @@ snapshots:
   '@capacitor/core@8.4.0':
     dependencies:
       tslib: 2.8.1
+
+  '@capacitor/network@8.0.1(@capacitor/core@8.4.0)':
+    dependencies:
+      '@capacitor/core': 8.4.0
 
   '@emnapi/core@1.10.0':
     dependencies:
@@ -1017,6 +1087,13 @@ snapshots:
 
   '@rolldown/pluginutils@1.0.1': {}
 
+  '@tanstack/query-core@5.101.0': {}
+
+  '@tanstack/react-query@5.101.0(react@19.2.7)':
+    dependencies:
+      '@tanstack/query-core': 5.101.0
+      react: 19.2.7
+
   '@tybys/wasm-util@0.10.2':
     dependencies:
       tslib: 2.8.1
@@ -1082,6 +1159,8 @@ snapshots:
   color-name@1.1.4: {}
 
   commander@12.1.0: {}
+
+  cookie@1.1.1: {}
 
   cross-spawn@7.0.6:
     dependencies:
@@ -1216,6 +1295,10 @@ snapshots:
 
   lru-cache@11.5.1: {}
 
+  lucide-react@1.18.0(react@19.2.7):
+    dependencies:
+      react: 19.2.7
+
   minimatch@10.2.5:
     dependencies:
       brace-expansion: 5.0.6
@@ -1289,6 +1372,20 @@ snapshots:
       react: 19.2.7
       scheduler: 0.27.0
 
+  react-router-dom@7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+    dependencies:
+      react: 19.2.7
+      react-dom: 19.2.7(react@19.2.7)
+      react-router: 7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+
+  react-router@7.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
+    dependencies:
+      cookie: 1.1.1
+      react: 19.2.7
+      set-cookie-parser: 2.7.2
+    optionalDependencies:
+      react-dom: 19.2.7(react@19.2.7)
+
   react@19.2.7: {}
 
   readable-stream@3.6.2:
@@ -1332,6 +1429,8 @@ snapshots:
   scheduler@0.27.0: {}
 
   semver@7.8.4: {}
+
+  set-cookie-parser@2.7.2: {}
 
   shebang-command@2.0.0:
     dependencies:
