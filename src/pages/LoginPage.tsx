@@ -37,6 +37,7 @@ export function LoginPage() {
         <div className="brand-mark">
           <LogIn aria-hidden size={28} />
         </div>
+        <span className="login-eyebrow">Sales Calling Workspace</span>
         <h1>Telemark 外呼助手</h1>
         <p>看客户，打电话，回填结果。</p>
 

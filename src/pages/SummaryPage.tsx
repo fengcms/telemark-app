@@ -18,12 +18,15 @@ export function SummaryPage() {
 
   return (
     <div className="page-stack">
-      <header className="page-header">
-        <div>
-          <p>今日战报</p>
-          <h1>销售节奏</h1>
-        </div>
-      </header>
+      <section className="hero-card">
+        <header className="page-header">
+          <div>
+            <p>今日战报</p>
+            <h1>销售节奏</h1>
+            <span className="header-subtitle">聚焦接通率和有效通话时长</span>
+          </div>
+        </header>
+      </section>
 
       {summaryQuery.isLoading ? <EmptyState title="正在加载战报..." /> : null}
       {summaryQuery.isError ? (

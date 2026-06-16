@@ -9,6 +9,7 @@ import {
   FeedbackSheet,
   type FeedbackSubmitValue,
 } from '@/components/FeedbackSheet';
+import { useAuth } from '@/hooks/useAuth';
 import {
   createManualCallEntry,
   getLatestCallForNumber,
@@ -19,6 +20,7 @@ import type { ActiveCall, Customer } from '@/types';
 import { formatDuration, getErrorMessage } from '@/utils/format';
 
 export function CustomersPage() {
+  const { session } = useAuth();
   const queryClient = useQueryClient();
   const [phoneLike, setPhoneLike] = useState('');
   const [activeCall, setActiveCall] = useState<ActiveCall | null>(null);
@@ -142,37 +144,42 @@ export function CustomersPage() {
 
   return (
     <div className="page-stack">
-      <header className="page-header">
-        <div>
-          <p>今日待拨</p>
-          <h1>客户外呼</h1>
-        </div>
-        <button
-          aria-label="刷新"
-          className="icon-button"
-          onClick={() => customersQuery.refetch()}
-          type="button"
-        >
-          <RefreshCcw aria-hidden size={22} />
-        </button>
-      </header>
+      <section className="hero-card">
+        <header className="page-header">
+          <div>
+            <p>今日待拨</p>
+            <h1>客户外呼</h1>
+            <span className="header-subtitle">
+              {session?.user.realName ?? session?.user.username}，保持节奏
+            </span>
+          </div>
+          <button
+            aria-label="刷新"
+            className="icon-button hero-action"
+            onClick={() => customersQuery.refetch()}
+            type="button"
+          >
+            <RefreshCcw aria-hidden size={22} />
+          </button>
+        </header>
 
-      <section className="summary-strip">
-        <div>
-          <strong>{summary?.totalCalls ?? 0}</strong>
-          <span>已拨</span>
-        </div>
-        <div>
-          <strong>{summary?.connectedCalls ?? 0}</strong>
-          <span>接通</span>
-        </div>
-        <div>
-          <strong>{connectionRate}</strong>
-          <span>接通率</span>
-        </div>
-        <div>
-          <strong>{formatDuration(summary?.totalDuration ?? 0)}</strong>
-          <span>通话</span>
+        <div className="summary-strip">
+          <div>
+            <strong>{summary?.totalCalls ?? 0}</strong>
+            <span>已拨</span>
+          </div>
+          <div>
+            <strong>{summary?.connectedCalls ?? 0}</strong>
+            <span>接通</span>
+          </div>
+          <div>
+            <strong>{connectionRate}</strong>
+            <span>接通率</span>
+          </div>
+          <div>
+            <strong>{formatDuration(summary?.totalDuration ?? 0)}</strong>
+            <span>通话</span>
+          </div>
         </div>
       </section>
 
