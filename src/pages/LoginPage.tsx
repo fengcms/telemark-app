@@ -1,4 +1,10 @@
-import { LogIn } from 'lucide-react';
+import {
+  ArrowRight,
+  Eye,
+  LockKeyhole,
+  PhoneCall,
+  UserRound,
+} from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,41 +41,56 @@ export function LoginPage() {
     <main className="login-page">
       <section className="login-card">
         <div className="brand-mark">
-          <LogIn aria-hidden size={28} />
+          <PhoneCall aria-hidden size={52} />
         </div>
-        <span className="login-eyebrow">Sales Calling Workspace</span>
-        <h1>Telemark 外呼助手</h1>
-        <p>看客户，打电话，回填结果。</p>
+        <h1>Telemark</h1>
+        <p>专注拨打，高效跟进</p>
 
         <form className="login-form" onSubmit={handleSubmit}>
           <label className="field">
-            <span>账号</span>
-            <input
-              autoComplete="username"
-              onChange={(event) => setUsername(event.target.value)}
-              placeholder="请输入账号"
-              value={username}
-            />
+            <span>用户名 / 手机号</span>
+            <div className="input-shell">
+              <UserRound aria-hidden size={22} />
+              <input
+                autoComplete="username"
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="请输入您的账号"
+                value={username}
+              />
+            </div>
           </label>
 
           <label className="field">
-            <span>密码</span>
-            <input
-              autoComplete="current-password"
-              onChange={(event) => setPassword(event.target.value)}
-              placeholder="请输入密码"
-              type="password"
-              value={password}
-            />
+            <span className="field-row">
+              登录密码 <a href="#forgot">忘记密码？</a>
+            </span>
+            <div className="input-shell">
+              <LockKeyhole aria-hidden size={22} />
+              <input
+                autoComplete="current-password"
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="请输入密码"
+                type="password"
+                value={password}
+              />
+              <Eye aria-hidden size={22} />
+            </div>
+          </label>
+
+          <label className="remember-row">
+            <input type="checkbox" />
+            <span>自动登录</span>
           </label>
 
           {error ? <p className="form-error">{error}</p> : null}
 
           <button className="primary-button" disabled={loading} type="submit">
-            {loading ? '登录中...' : '登录'}
+            {loading ? '登录中...' : '进入工作台'}
+            <ArrowRight aria-hidden size={28} />
           </button>
         </form>
       </section>
+      <footer className="login-footer">© 2024 Telemark 外呼助手</footer>
     </main>
   );
 }

@@ -1,6 +1,6 @@
 import { App as CapacitorApp } from '@capacitor/app';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { RefreshCcw, Search } from 'lucide-react';
+import { ListFilter, RefreshCcw, Search } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getMyCustomers, getMySummary, reportCall } from '@/api/endpoints';
 import { CustomerCard } from '@/components/CustomerCard';
@@ -144,24 +144,11 @@ export function CustomersPage() {
 
   return (
     <div className="page-stack">
-      <section className="hero-card">
-        <header className="page-header">
-          <div>
-            <p>今日待拨</p>
-            <h1>客户外呼</h1>
-            <span className="header-subtitle">
-              {session?.user.realName ?? session?.user.username}，保持节奏
-            </span>
-          </div>
-          <button
-            aria-label="刷新"
-            className="icon-button hero-action"
-            onClick={() => customersQuery.refetch()}
-            type="button"
-          >
-            <RefreshCcw aria-hidden size={22} />
-          </button>
-        </header>
+      <section className="call-dashboard">
+        <div className="greeting-block">
+          <h1>上午好，{session?.user.realName ?? session?.user.username}</h1>
+          <p>今天又是充满活力的一天，加油！</p>
+        </div>
 
         <div className="summary-strip">
           <div>
@@ -183,15 +170,34 @@ export function CustomersPage() {
         </div>
       </section>
 
-      <label className="search-box">
-        <Search aria-hidden size={18} />
-        <input
-          inputMode="tel"
-          onChange={(event) => setPhoneLike(event.target.value)}
-          placeholder="按手机号搜索"
-          value={phoneLike}
-        />
-      </label>
+      <div className="search-row">
+        <label className="search-box">
+          <Search aria-hidden size={24} />
+          <input
+            inputMode="tel"
+            onChange={(event) => setPhoneLike(event.target.value)}
+            placeholder="搜索姓名、手机、公司..."
+            value={phoneLike}
+          />
+        </label>
+        <button aria-label="筛选" className="filter-button" type="button">
+          <ListFilter aria-hidden size={26} />
+        </button>
+      </div>
+
+      <div className="sort-pills">
+        <button className="active" type="button">
+          ID ↓
+        </button>
+        <button type="button">ID ↑</button>
+        <button type="button">姓名匹配</button>
+        <button type="button">手机匹配</button>
+      </div>
+
+      <p className="sync-line">
+        <RefreshCcw aria-hidden size={18} />
+        正在同步最新公海库...
+      </p>
 
       {message ? <p className="notice">{message}</p> : null}
 

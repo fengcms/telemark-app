@@ -1,15 +1,26 @@
-import { X } from 'lucide-react';
+import {
+  Ban,
+  CheckCircle2,
+  PhoneMissed,
+  Save,
+  SignalZero,
+  X,
+} from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import type { CallResult, Customer } from '@/types';
 import { formatDuration } from '@/utils/format';
 
-const resultOptions: Array<{ value: CallResult; label: string; hint: string }> =
-  [
-    { value: 1, label: '已接听', hint: '有沟通，自动标记意向' },
-    { value: 2, label: '无人接听', hint: '稍后可再次跟进' },
-    { value: 3, label: '拒接', hint: '客户明确拒绝接听' },
-    { value: 4, label: '空号停机', hint: '号码不可用' },
-  ];
+const resultOptions: Array<{
+  value: CallResult;
+  label: string;
+  tone: string;
+  Icon: typeof CheckCircle2;
+}> = [
+  { value: 1, label: '已接听', tone: 'connected', Icon: CheckCircle2 },
+  { value: 2, label: '无人接听', tone: 'missed', Icon: PhoneMissed },
+  { value: 3, label: '拒接', tone: 'rejected', Icon: Ban },
+  { value: 4, label: '空号停机', tone: 'invalid', Icon: SignalZero },
+];
 
 export type FeedbackSubmitValue = {
   callResult: CallResult;
@@ -58,8 +69,10 @@ export function FeedbackSheet({
       <section aria-modal className="feedback-sheet" role="dialog">
         <header className="sheet-header">
           <div>
-            <p>通话反馈</p>
-            <h2>{customer.name}</h2>
+            <h2>通话结果反馈</h2>
+            <p>
+              {customer.name} <span>|</span> {customer.phone}
+            </p>
           </div>
           <button
             aria-label="关闭"
@@ -73,7 +86,11 @@ export function FeedbackSheet({
 
         <div className="duration-panel">
           <span>通话时长</span>
-          <strong>{formatDuration(visibleDuration)}</strong>
+          <strong>
+            {formatDuration(visibleDuration)
+              .replace('分', ':')
+              .replace('秒', '')}
+          </strong>
           <input
             min={0}
             onChange={(event) => setDuration(Number(event.target.value))}
@@ -87,28 +104,36 @@ export function FeedbackSheet({
             <button
               className={
                 callResult === option.value
-                  ? 'result-tile active'
-                  : 'result-tile'
+                  ? `result-tile ${option.tone} active`
+                  : `result-tile ${option.tone}`
               }
               key={option.value}
               onClick={() => setCallResult(option.value)}
               type="button"
             >
+              <span className="result-icon">
+                <option.Icon aria-hidden size={34} />
+              </span>
               <strong>{option.label}</strong>
-              <span>{option.hint}</span>
             </button>
           ))}
         </div>
 
         <label className="field">
-          <span>备注</span>
+          <span>备注记录</span>
           <textarea
             onChange={(event) => setCallRemark(event.target.value)}
-            placeholder="记录客户意向、下次回访时间或其他关键信息"
+            placeholder="记录客户意向、下次回访时间等"
             rows={4}
             value={callRemark}
           />
         </label>
+
+        <div className="quick-remarks">
+          <button type="button">意向一般</button>
+          <button type="button">需要回访</button>
+          <button type="button">挂断较快</button>
+        </div>
 
         <button
           className="primary-button"
@@ -122,7 +147,11 @@ export function FeedbackSheet({
           }
           type="button"
         >
-          {submitting ? '提交中...' : '提交通话结果'}
+          <Save aria-hidden size={22} />
+          {submitting ? '提交中...' : '保存反馈'}
+        </button>
+        <button className="ghost-text-button" onClick={onClose} type="button">
+          暂不保存
         </button>
       </section>
     </div>

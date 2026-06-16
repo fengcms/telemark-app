@@ -1,4 +1,4 @@
-import { Building2, PhoneCall } from 'lucide-react';
+import { Clock3, PhoneCall } from 'lucide-react';
 import { StatusChip, TypeChip } from '@/components/StatusChip';
 import type { Customer } from '@/types';
 
@@ -38,8 +38,12 @@ export function CustomerCard({
       </div>
 
       <div className="company-line">
-        <Building2 aria-hidden size={16} />
         <span>{customer.company || '未填写公司'}</span>
+      </div>
+
+      <div className="last-contact-line">
+        <Clock3 aria-hidden size={16} />
+        <span>{history ? '最近更新' : '从未拨打'}</span>
       </div>
 
       {customer.remark ? <p className="remark">{customer.remark}</p> : null}

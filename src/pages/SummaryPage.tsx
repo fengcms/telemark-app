@@ -18,12 +18,13 @@ export function SummaryPage() {
 
   return (
     <div className="page-stack">
-      <section className="hero-card">
+      <section className="report-hero">
         <header className="page-header">
           <div>
-            <p>今日战报</p>
-            <h1>销售节奏</h1>
-            <span className="header-subtitle">聚焦接通率和有效通话时长</span>
+            <p>今日完成情况</p>
+            <h1>业绩稳步攀升</h1>
+            <strong>84%</strong>
+            <span>目标进度</span>
           </div>
         </header>
       </section>
@@ -35,6 +36,7 @@ export function SummaryPage() {
 
       {summary ? (
         <>
+          <h2 className="section-title">核心指标</h2>
           <section className="metric-grid">
             <article className="metric-card">
               <PhoneCall aria-hidden size={22} />
@@ -53,6 +55,7 @@ export function SummaryPage() {
             </article>
           </section>
 
+          <h2 className="section-title">今日轨迹</h2>
           <section className="timeline-card">
             <div>
               <Clock aria-hidden size={18} />

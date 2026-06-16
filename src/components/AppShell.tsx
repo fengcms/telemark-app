@@ -1,4 +1,11 @@
-import { BarChart3, Clock3, PhoneCall, UserRound } from 'lucide-react';
+import {
+  BarChart3,
+  Clock3,
+  Menu,
+  PhoneCall,
+  Search,
+  UserRound,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useOnlineSync } from '@/hooks/useOnlineSync';
@@ -17,6 +24,22 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
+      <header className="brand-topbar">
+        <button aria-label="菜单" className="topbar-button" type="button">
+          <Menu aria-hidden size={28} />
+        </button>
+        <div className="wordmark">
+          <span>Telemark</span>
+          <i />
+          <i />
+          <i />
+          <i />
+        </div>
+        <button aria-label="搜索" className="topbar-button" type="button">
+          <Search aria-hidden size={30} />
+        </button>
+      </header>
+
       <main className="app-content">
         {pendingCount > 0 ? (
           <button

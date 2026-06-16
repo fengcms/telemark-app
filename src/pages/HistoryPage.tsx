@@ -22,46 +22,40 @@ export function HistoryPage() {
 
   return (
     <div className="page-stack">
-      <header className="page-header">
-        <div>
-          <p>已拨客户</p>
-          <h1>历史记录</h1>
-        </div>
-      </header>
-
       <label className="search-box">
-        <Search aria-hidden size={18} />
+        <Search aria-hidden size={26} />
         <input
           inputMode="tel"
           onChange={(event) => setPhoneLike(event.target.value)}
-          placeholder="按手机号搜索"
+          placeholder="搜索客户姓名、电话或备注..."
           value={phoneLike}
         />
       </label>
 
-      <div className="filter-row">
-        <select
-          onChange={(event) =>
-            setStatus(event.target.value as CustomerStatus | 'all')
-          }
-          value={status}
+      <div className="history-tabs">
+        {[
+          ['all', '全部'],
+          [1, '已接听'],
+          [2, '无人接听'],
+          [3, '拒接'],
+          [4, '空号'],
+        ].map(([value, label]) => (
+          <button
+            className={status === value ? 'active' : ''}
+            key={String(value)}
+            onClick={() => setStatus(value as CustomerStatus | 'all')}
+            type="button"
+          >
+            {label}
+          </button>
+        ))}
+        <button
+          className={type === 1 ? 'active' : ''}
+          onClick={() => setType(type === 1 ? 'all' : 1)}
+          type="button"
         >
-          <option value="all">全部状态</option>
-          <option value={1}>已接听</option>
-          <option value={2}>无人接听</option>
-          <option value={3}>拒接</option>
-          <option value={4}>空号停机</option>
-        </select>
-        <select
-          onChange={(event) =>
-            setType(event.target.value as CustomerType | 'all')
-          }
-          value={type}
-        >
-          <option value="all">全部类型</option>
-          <option value={0}>普通线索</option>
-          <option value={1}>意向客户</option>
-        </select>
+          意向客户
+        </button>
       </div>
 
       <section className="card-list">

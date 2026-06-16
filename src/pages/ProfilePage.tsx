@@ -1,4 +1,4 @@
-import { LogOut, Save } from 'lucide-react';
+import { ChevronRight, Info, LockKeyhole, LogOut, Save } from 'lucide-react';
 import { type FormEvent, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { getPendingReports } from '@/offline/callQueue';
@@ -31,31 +31,42 @@ export function ProfilePage() {
 
   return (
     <div className="page-stack">
-      <header className="page-header">
-        <div>
-          <p>个人中心</p>
-          <h1>{session?.user.realName ?? session?.user.username}</h1>
+      <section className="profile-hero">
+        <div className="avatar-ring">
+          <span>
+            {(session?.user.realName ?? session?.user.username ?? '销').slice(
+              0,
+              1,
+            )}
+          </span>
         </div>
-      </header>
-
-      <section className="profile-card">
         <div>
-          <span>账号</span>
+          <h1>{session?.user.realName ?? session?.user.username}</h1>
+          <span>账号：</span>
           <strong>{session?.user.username}</strong>
         </div>
-        <div>
-          <span>角色</span>
-          <strong>{session?.user.role === 2 ? '经理' : '普通员工'}</strong>
-        </div>
-        <div>
-          <span>待补传</span>
-          <strong>{pendingCount} 条</strong>
-        </div>
+        <em>{session?.user.role === 2 ? 'MANAGER' : 'SALES'}</em>
+        <footer>
+          <div>
+            <strong>1,284</strong>
+            <span>本月呼叫</span>
+          </div>
+          <div>
+            <strong>{pendingCount ? `${pendingCount} 条` : '85%'}</strong>
+            <span>{pendingCount ? '待补传' : '接通率'}</span>
+          </div>
+        </footer>
       </section>
 
       <form className="settings-card" onSubmit={handlePassword}>
-        <h2>修改密码</h2>
-        <label className="field">
+        <div className="setting-row">
+          <span className="setting-icon">
+            <LockKeyhole aria-hidden size={24} />
+          </span>
+          <strong>修改密码</strong>
+          <ChevronRight aria-hidden size={24} />
+        </div>
+        <label className="field compact-field">
           <span>旧密码</span>
           <input
             autoComplete="current-password"
@@ -64,7 +75,7 @@ export function ProfilePage() {
             value={oldPassword}
           />
         </label>
-        <label className="field">
+        <label className="field compact-field">
           <span>新密码</span>
           <input
             autoComplete="new-password"
@@ -78,6 +89,14 @@ export function ProfilePage() {
           <Save aria-hidden size={18} />
           {loading ? '保存中...' : '保存新密码'}
         </button>
+        <div className="setting-row version-row">
+          <span className="setting-icon">
+            <Info aria-hidden size={24} />
+          </span>
+          <strong>关于版本</strong>
+          <em>v2.4.0</em>
+          <ChevronRight aria-hidden size={24} />
+        </div>
       </form>
 
       <button
