@@ -503,6 +503,36 @@ curl 'http://localhost:8787/api/my-summary' \
 
 ---
 
+## 常用反馈备注接口
+
+### GET /api/call-remarks/common
+
+获取 APP 通话反馈弹窗的常用备注。仅 `role=2` 或 `role=3` 可调用。
+
+响应为字符串数组：
+
+```json
+[
+  "客户已接听，有明确意向",
+  "客户有意向，稍后回访",
+  "无人接听，稍后再拨"
+]
+```
+
+业务规则：
+
+- 只返回 `status=1` 的备注
+- 按 `sortOrder ASC, id ASC` 排序
+- 返回数组本身，不包裹 `list`
+
+curl：
+
+```bash
+curl 'http://localhost:8787/api/call-remarks/common' \
+  -H "Authorization: Bearer <employeeOrManagerAccessToken>"
+```
+
+
 ## APP 核心交互流程
 
 ```

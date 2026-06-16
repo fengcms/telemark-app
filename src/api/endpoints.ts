@@ -84,3 +84,7 @@ export function reportCall(payload: CallReportPayload) {
 export function getMySummary() {
   return apiRequest<MySummary>('/api/my-summary');
 }
+
+export function getCommonCallRemarks() {
+  return apiRequest<string[]>('/api/call-remarks/common');
+}

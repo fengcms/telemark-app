@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query';
 import {
   Ban,
   CheckCircle2,
@@ -7,6 +8,7 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { getCommonCallRemarks } from '@/api/endpoints';
 import type { CallResult, Customer } from '@/types';
 import { formatDuration } from '@/utils/format';
 
@@ -47,10 +49,19 @@ export function FeedbackSheet({
   const [duration, setDuration] = useState(defaultDuration);
   const [callRemark, setCallRemark] = useState('');
 
+  const commonRemarksQuery = useQuery({
+    queryKey: ['call-remarks', 'common'],
+    queryFn: getCommonCallRemarks,
+    enabled: open,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const visibleDuration = useMemo(
     () => Math.max(0, Math.floor(duration)),
     [duration],
   );
+
+  const commonRemarks = commonRemarksQuery.data ?? [];
 
   useEffect(() => {
     if (open) {
@@ -62,6 +73,13 @@ export function FeedbackSheet({
 
   if (!open || !customer) {
     return null;
+  }
+
+  function appendRemark(remark: string) {
+    setCallRemark((current) => {
+      const trimmed = current.trim();
+      return trimmed ? `${trimmed} ${remark}` : remark;
+    });
   }
 
   return (
@@ -129,11 +147,19 @@ export function FeedbackSheet({
           />
         </label>
 
-        <div className="quick-remarks">
-          <button type="button">意向一般</button>
-          <button type="button">需要回访</button>
-          <button type="button">挂断较快</button>
-        </div>
+        {commonRemarks.length > 0 ? (
+          <div className="quick-remarks">
+            {commonRemarks.map((remark) => (
+              <button
+                key={remark}
+                onClick={() => appendRemark(remark)}
+                type="button"
+              >
+                {remark}
+              </button>
+            ))}
+          </div>
+        ) : null}
 
         <button
           className="primary-button"
