@@ -694,12 +694,10 @@ a {
 .sheet-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 10;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  z-index: 50;
   background: rgba(15, 23, 42, 0.42);
   backdrop-filter: blur(6px);
+  overscroll-behavior: none;
 }
 
 .sheet-backdrop-dismiss {
@@ -707,14 +705,21 @@ a {
   inset: 0;
   border: 0;
   background: transparent;
+  touch-action: none;
 }
 
 .feedback-sheet {
-  position: relative;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 1;
   width: min(100%, 430px);
-  max-height: 94vh;
+  max-height: 85vh;
+  margin: 0 auto;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   padding: 10px 16px calc(16px + env(safe-area-inset-bottom));
   border-radius: 24px 24px 0 0;
   background: #ffffff;
@@ -913,7 +918,10 @@ a {
   gap: 8px;
   max-height: 200px;
   margin: 10px 0 14px;
+  overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .quick-remarks button {

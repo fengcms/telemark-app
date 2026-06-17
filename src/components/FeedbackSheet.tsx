@@ -1,13 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  Ban,
-  CheckCircle2,
-  PhoneMissed,
-  Save,
-  SignalZero,
-} from 'lucide-react';
+import { Ban, CheckCircle2, PhoneMissed, Save, SignalZero } from 'lucide-react';
 import { type PointerEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { getCommonCallRemarks } from '@/api/endpoints';
+import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import type { CallResult, Customer } from '@/types';
 import { formatDuration } from '@/utils/format';
 
@@ -62,6 +57,8 @@ export function FeedbackSheet({
   );
 
   const commonRemarks = commonRemarksQuery.data ?? [];
+
+  useBodyScrollLock(open);
 
   useEffect(() => {
     if (open) {
