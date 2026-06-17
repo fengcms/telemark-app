@@ -55,6 +55,8 @@ export function FeedbackSheet({
     () => Math.max(0, Math.floor(duration)),
     [duration],
   );
+  const trimmedRemark = callRemark.trim();
+  const canSubmit = trimmedRemark.length > 0 && !submitting;
 
   const commonRemarks = commonRemarksQuery.data ?? [];
 
@@ -91,6 +93,18 @@ export function FeedbackSheet({
     if (startY !== null && event.clientY - startY > 36) {
       onClose();
     }
+  }
+
+  function handleSave() {
+    if (!trimmedRemark) {
+      return;
+    }
+
+    onSubmit({
+      callResult,
+      duration: visibleDuration,
+      callRemark: trimmedRemark,
+    });
   }
 
   return (
@@ -153,6 +167,9 @@ export function FeedbackSheet({
             value={callRemark}
           />
         </label>
+        {!trimmedRemark ? (
+          <p className="field-error">请填写备注记录后保存反馈</p>
+        ) : null}
 
         {commonRemarks.length > 0 ? (
           <div className="quick-remarks">
@@ -170,14 +187,8 @@ export function FeedbackSheet({
 
         <button
           className="primary-button"
-          disabled={submitting}
-          onClick={() =>
-            onSubmit({
-              callResult,
-              duration: visibleDuration,
-              callRemark: callRemark.trim() || undefined,
-            })
-          }
+          disabled={!canSubmit}
+          onClick={handleSave}
           type="button"
         >
           <Save aria-hidden size={22} />

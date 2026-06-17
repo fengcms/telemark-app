@@ -21,6 +21,29 @@ function savePendingReports(reports: PendingCallReport[]) {
   localStorage.setItem(QUEUE_KEY, JSON.stringify(reports));
 }
 
+export function getReportsMissingRemarks() {
+  return getPendingReports().filter((report) => !report.callRemark?.trim());
+}
+
+export function updatePendingReportRemarks(remarks: Record<string, string>) {
+  const reports = getPendingReports();
+
+  savePendingReports(
+    reports.map((report) => {
+      const remark = remarks[report.clientRequestId]?.trim();
+
+      if (!remark) {
+        return report;
+      }
+
+      return {
+        ...report,
+        callRemark: remark,
+      };
+    }),
+  );
+}
+
 export function queueCallReport(
   payload: CallReportPayload,
   meta: Pick<PendingCallReport, 'customerName' | 'phone'> = {},
@@ -48,12 +71,17 @@ export async function flushPendingReports() {
   let sent = 0;
 
   for (const pending of reports) {
+    if (!pending.callRemark?.trim()) {
+      failed.push(pending);
+      continue;
+    }
+
     try {
       await reportCall({
         customerId: pending.customerId,
         duration: pending.duration,
         callResult: pending.callResult,
-        callRemark: pending.callRemark,
+        callRemark: pending.callRemark.trim(),
         clientRequestId: pending.clientRequestId,
         startedAt: pending.startedAt,
         endedAt: pending.endedAt,

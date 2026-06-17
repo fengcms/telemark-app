@@ -129,9 +129,15 @@ a {
   justify-content: space-between;
 }
 
-.field-row a {
+.field-row a,
+.link-button {
+  border: 0;
   color: var(--primary);
+  background: transparent;
+  font-size: inherit;
+  font-weight: inherit;
   text-decoration: none;
+  cursor: pointer;
 }
 
 .input-shell,
@@ -160,6 +166,18 @@ a {
   border: 0;
   outline: 0;
   color: var(--ink);
+}
+
+.input-icon-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 0;
+  color: #778194;
+  background: transparent;
+  cursor: pointer;
 }
 
 .field input {
@@ -912,6 +930,13 @@ a {
   resize: none;
 }
 
+.field-error {
+  margin: -2px 0 0;
+  color: #c91d28;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .quick-remarks {
   display: flex;
   flex-wrap: wrap;
@@ -1235,4 +1260,66 @@ a {
 
 .version-copy p {
   margin: 0;
+}
+
+.pending-remark-modal {
+  max-height: 86vh;
+}
+
+.pending-remark-copy {
+  margin: 0;
+  color: #5f6b7c;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.pending-remark-list {
+  display: grid;
+  gap: 12px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pending-remark-item {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.pending-remark-item header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pending-remark-item strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pending-remark-item header span {
+  flex: 0 0 auto;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.pending-remark-item p {
+  margin: 0;
+  color: #778194;
+  font-size: 13px;
+}
+
+.pending-remark-item textarea {
+  min-height: 78px;
+  resize: none;
 }

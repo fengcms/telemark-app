@@ -6,10 +6,16 @@ import {
   Search,
   UserRound,
 } from 'lucide-react';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { NavLink } from 'react-router-dom';
+import { PendingReportRemarkModal } from '@/components/PendingReportRemarkModal';
 import { useOnlineSync } from '@/hooks/useOnlineSync';
-import { getPendingReports } from '@/offline/callQueue';
+import {
+  getPendingReports,
+  getReportsMissingRemarks,
+  updatePendingReportRemarks,
+} from '@/offline/callQueue';
+import type { PendingCallReport } from '@/types';
 
 const navItems = [
   { to: '/', label: '待拨', icon: PhoneCall },
@@ -20,7 +26,27 @@ const navItems = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const sync = useOnlineSync();
+  const [reportsNeedingRemarks, setReportsNeedingRemarks] = useState<
+    PendingCallReport[]
+  >([]);
   const pendingCount = getPendingReports().length;
+
+  function handleSyncPendingReports() {
+    const missingRemarks = getReportsMissingRemarks();
+
+    if (missingRemarks.length > 0) {
+      setReportsNeedingRemarks(missingRemarks);
+      return;
+    }
+
+    sync.mutate();
+  }
+
+  function handleSavePendingRemarks(remarks: Record<string, string>) {
+    updatePendingReportRemarks(remarks);
+    setReportsNeedingRemarks([]);
+    sync.mutate();
+  }
 
   return (
     <div className="app-shell">
@@ -45,7 +71,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             className="sync-banner"
             disabled={sync.isPending}
-            onClick={() => sync.mutate()}
+            onClick={handleSyncPendingReports}
             type="button"
           >
             {sync.isPending
@@ -55,6 +81,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         ) : null}
         {children}
       </main>
+
+      {reportsNeedingRemarks.length > 0 ? (
+        <PendingReportRemarkModal
+          onClose={() => setReportsNeedingRemarks([])}
+          onSave={handleSavePendingRemarks}
+          reports={reportsNeedingRemarks}
+        />
+      ) : null}
 
       <nav className="bottom-nav">
         {navItems.map((item) => {
