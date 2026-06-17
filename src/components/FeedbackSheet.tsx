@@ -5,9 +5,8 @@ import {
   PhoneMissed,
   Save,
   SignalZero,
-  X,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { type PointerEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { getCommonCallRemarks } from '@/api/endpoints';
 import type { CallResult, Customer } from '@/types';
 import { formatDuration } from '@/utils/format';
@@ -48,6 +47,7 @@ export function FeedbackSheet({
   const [callResult, setCallResult] = useState<CallResult>(1);
   const [duration, setDuration] = useState(defaultDuration);
   const [callRemark, setCallRemark] = useState('');
+  const dragStartY = useRef<number | null>(null);
 
   const commonRemarksQuery = useQuery({
     queryKey: ['call-remarks', 'common'],
@@ -82,9 +82,37 @@ export function FeedbackSheet({
     });
   }
 
+  function handleDragStart(event: PointerEvent<HTMLButtonElement>) {
+    dragStartY.current = event.clientY;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function handleDragEnd(event: PointerEvent<HTMLButtonElement>) {
+    const startY = dragStartY.current;
+    dragStartY.current = null;
+
+    if (startY !== null && event.clientY - startY > 36) {
+      onClose();
+    }
+  }
+
   return (
     <div className="sheet-backdrop">
+      <button
+        aria-label="关闭反馈面板"
+        className="sheet-backdrop-dismiss"
+        onClick={onClose}
+        type="button"
+      />
       <section aria-modal className="feedback-sheet" role="dialog">
+        <button
+          aria-label="关闭反馈面板"
+          className="sheet-drag-handle"
+          onClick={onClose}
+          onPointerDown={handleDragStart}
+          onPointerUp={handleDragEnd}
+          type="button"
+        />
         <header className="sheet-header">
           <div>
             <h2>通话结果反馈</h2>
@@ -92,29 +120,11 @@ export function FeedbackSheet({
               {customer.name} <span>|</span> {customer.phone}
             </p>
           </div>
-          <button
-            aria-label="关闭"
-            className="icon-button"
-            onClick={onClose}
-            type="button"
-          >
-            <X aria-hidden size={22} />
-          </button>
         </header>
 
         <div className="duration-panel">
           <span>通话时长</span>
-          <strong>
-            {formatDuration(visibleDuration)
-              .replace('分', ':')
-              .replace('秒', '')}
-          </strong>
-          <input
-            min={0}
-            onChange={(event) => setDuration(Number(event.target.value))}
-            type="number"
-            value={visibleDuration}
-          />
+          <strong>{formatDuration(visibleDuration)}</strong>
         </div>
 
         <div className="result-grid">
@@ -142,7 +152,7 @@ export function FeedbackSheet({
           <textarea
             onChange={(event) => setCallRemark(event.target.value)}
             placeholder="记录客户意向、下次回访时间等"
-            rows={4}
+            rows={3}
             value={callRemark}
           />
         </label>
