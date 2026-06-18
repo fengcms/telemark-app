@@ -22,7 +22,9 @@ function savePendingReports(reports: PendingCallReport[]) {
 }
 
 export function getReportsMissingRemarks() {
-  return getPendingReports().filter((report) => !report.callRemark?.trim());
+  return getPendingReports().filter(
+    (report) => report.callResult === 1 && !report.callRemark?.trim(),
+  );
 }
 
 export function updatePendingReportRemarks(remarks: Record<string, string>) {
@@ -71,7 +73,9 @@ export async function flushPendingReports() {
   let sent = 0;
 
   for (const pending of reports) {
-    if (!pending.callRemark?.trim()) {
+    const callRemark = pending.callRemark?.trim();
+
+    if (pending.callResult === 1 && !callRemark) {
       failed.push(pending);
       continue;
     }
@@ -81,7 +85,7 @@ export async function flushPendingReports() {
         customerId: pending.customerId,
         duration: pending.duration,
         callResult: pending.callResult,
-        callRemark: pending.callRemark.trim(),
+        callRemark: pending.callResult === 1 ? callRemark : undefined,
         clientRequestId: pending.clientRequestId,
         startedAt: pending.startedAt,
         endedAt: pending.endedAt,

@@ -43,12 +43,14 @@ export function FeedbackSheet({
   const [duration, setDuration] = useState(defaultDuration);
   const [callRemark, setCallRemark] = useState('');
   const dragStartY = useRef<number | null>(null);
+  const isConnected = callResult === 1;
 
   const commonRemarksQuery = useQuery({
     queryKey: ['call-remarks', 'common'],
     queryFn: getCommonCallRemarks,
-    enabled: open,
-    staleTime: 5 * 60 * 1000,
+    enabled: open && isConnected,
+    staleTime: 30 * 24 * 60 * 60 * 1000,
+    gcTime: 30 * 24 * 60 * 60 * 1000,
   });
 
   const visibleDuration = useMemo(
@@ -56,7 +58,7 @@ export function FeedbackSheet({
     [duration],
   );
   const trimmedRemark = callRemark.trim();
-  const canSubmit = trimmedRemark.length > 0 && !submitting;
+  const canSubmit = (!isConnected || trimmedRemark.length > 0) && !submitting;
 
   const commonRemarks = commonRemarksQuery.data ?? [];
 
@@ -96,14 +98,14 @@ export function FeedbackSheet({
   }
 
   function handleSave() {
-    if (!trimmedRemark) {
+    if (isConnected && !trimmedRemark) {
       return;
     }
 
     onSubmit({
       callResult,
       duration: visibleDuration,
-      callRemark: trimmedRemark,
+      callRemark: isConnected ? trimmedRemark : undefined,
     });
   }
 
@@ -147,7 +149,12 @@ export function FeedbackSheet({
                   : `result-tile ${option.tone}`
               }
               key={option.value}
-              onClick={() => setCallResult(option.value)}
+              onClick={() => {
+                setCallResult(option.value);
+                if (option.value !== 1) {
+                  setCallRemark('');
+                }
+              }}
               type="button"
             >
               <span className="result-icon">
@@ -158,31 +165,35 @@ export function FeedbackSheet({
           ))}
         </div>
 
-        <label className="field">
-          <span>备注记录</span>
-          <textarea
-            onChange={(event) => setCallRemark(event.target.value)}
-            placeholder="记录客户意向、下次回访时间等"
-            rows={3}
-            value={callRemark}
-          />
-        </label>
-        {!trimmedRemark ? (
-          <p className="field-error">请填写备注记录后保存反馈</p>
-        ) : null}
+        {isConnected ? (
+          <>
+            <label className="field">
+              <span>备注记录</span>
+              <textarea
+                onChange={(event) => setCallRemark(event.target.value)}
+                placeholder="记录客户意向、下次回访时间等"
+                rows={3}
+                value={callRemark}
+              />
+            </label>
+            {!trimmedRemark ? (
+              <p className="field-error">已接听客户需要填写备注记录</p>
+            ) : null}
 
-        {commonRemarks.length > 0 ? (
-          <div className="quick-remarks">
-            {commonRemarks.map((remark) => (
-              <button
-                key={remark}
-                onClick={() => appendRemark(remark)}
-                type="button"
-              >
-                {remark}
-              </button>
-            ))}
-          </div>
+            {commonRemarks.length > 0 ? (
+              <div className="quick-remarks">
+                {commonRemarks.map((remark) => (
+                  <button
+                    key={remark}
+                    onClick={() => appendRemark(remark)}
+                    type="button"
+                  >
+                    {remark}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </>
         ) : null}
 
         <button

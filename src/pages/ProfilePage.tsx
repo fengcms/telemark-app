@@ -1,19 +1,45 @@
-import { ChevronRight, Info, LockKeyhole, LogOut, Save, X } from 'lucide-react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  ChevronRight,
+  Info,
+  LockKeyhole,
+  LogOut,
+  Save,
+  Trash2,
+  X,
+} from 'lucide-react';
 import { type FormEvent, useState } from 'react';
+import { getAgentMonthlyDashboard } from '@/api/endpoints';
 import { useAuth } from '@/hooks/useAuth';
 import { getPendingReports } from '@/offline/callQueue';
+import { clearLocalAppCache } from '@/store/cache';
 import { getErrorMessage } from '@/utils/format';
 
 export function ProfilePage() {
+  const queryClient = useQueryClient();
   const { session, signOut, updatePassword } = useAuth();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [clearingCache, setClearingCache] = useState(false);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [versionModalOpen, setVersionModalOpen] = useState(false);
+  const [clearCacheModalOpen, setClearCacheModalOpen] = useState(false);
   const pendingCount = getPendingReports().length;
+
+  const monthlyQuery = useQuery({
+    queryKey: ['dashboard', 'agent-monthly'],
+    queryFn: getAgentMonthlyDashboard,
+  });
+
+  const monthly =
+    monthlyQuery.data?.list.find((item) => item.userId === session?.user.id) ??
+    monthlyQuery.data?.list[0];
+  const connectRate = monthly
+    ? `${Math.round(monthly.connectRate * 1000) / 10}%`
+    : '0%';
 
   async function handlePassword(event: FormEvent) {
     event.preventDefault();
@@ -45,6 +71,19 @@ export function ProfilePage() {
     }
   }
 
+  async function handleClearCache() {
+    setClearingCache(true);
+
+    try {
+      await signOut();
+    } finally {
+      clearLocalAppCache();
+      queryClient.clear();
+      setClearingCache(false);
+      setClearCacheModalOpen(false);
+    }
+  }
+
   return (
     <div className="page-stack">
       <section className="profile-hero">
@@ -64,12 +103,12 @@ export function ProfilePage() {
         <em>{session?.user.role === 2 ? 'MANAGER' : 'SALES'}</em>
         <footer>
           <div>
-            <strong>1,284</strong>
+            <strong>{monthly?.totalCalls ?? 0}</strong>
             <span>本月呼叫</span>
           </div>
           <div>
-            <strong>{pendingCount ? `${pendingCount} 条` : '85%'}</strong>
-            <span>{pendingCount ? '待补传' : '接通率'}</span>
+            <strong>{connectRate}</strong>
+            <span>接通率</span>
           </div>
         </footer>
       </section>
@@ -102,7 +141,22 @@ export function ProfilePage() {
           <em>v2.4.0</em>
           <ChevronRight aria-hidden size={24} />
         </button>
+        <button
+          className="setting-row"
+          onClick={() => setClearCacheModalOpen(true)}
+          type="button"
+        >
+          <span className="setting-icon danger-setting-icon">
+            <Trash2 aria-hidden size={24} />
+          </span>
+          <strong>清除缓存</strong>
+          <ChevronRight aria-hidden size={24} />
+        </button>
       </form>
+
+      {pendingCount > 0 ? (
+        <p className="notice">{pendingCount} 条通话记录待补传</p>
+      ) : null}
 
       <button
         className="danger-button"
@@ -203,6 +257,49 @@ export function ProfilePage() {
               type="button"
             >
               我知道了
+            </button>
+          </section>
+        </div>
+      ) : null}
+
+      {clearCacheModalOpen ? (
+        <div className="modal-backdrop">
+          <section className="app-modal">
+            <header className="modal-header">
+              <div>
+                <p>本地数据</p>
+                <h2>清除本地缓存？</h2>
+              </div>
+              <button
+                aria-label="关闭"
+                className="icon-button"
+                onClick={() => setClearCacheModalOpen(false)}
+                type="button"
+              >
+                <X aria-hidden size={22} />
+              </button>
+            </header>
+            <div className="version-copy">
+              <p>
+                此操作会清除本机保存的登录信息、离线补传队列、接口缓存和当前会话，并退出账号回到登录页。
+              </p>
+              <p>已提交到服务器的数据不会受到影响。</p>
+            </div>
+            <button
+              className="danger-button"
+              disabled={clearingCache}
+              onClick={() => void handleClearCache()}
+              type="button"
+            >
+              <Trash2 aria-hidden size={18} />
+              {clearingCache ? '正在清除...' : '清除并退出'}
+            </button>
+            <button
+              className="ghost-text-button"
+              onClick={() => setClearCacheModalOpen(false)}
+              type="button"
+            >
+              取消
             </button>
           </section>
         </div>

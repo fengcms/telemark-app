@@ -244,6 +244,11 @@ a {
   background: #ffffff;
 }
 
+.danger-setting-icon {
+  color: #c91d28;
+  background: var(--red-soft);
+}
+
 .form-error,
 .notice {
   margin: 0;
@@ -1239,7 +1244,8 @@ a {
   letter-spacing: 0;
 }
 
-.app-modal .primary-button {
+.app-modal .primary-button,
+.app-modal .danger-button {
   width: 100%;
 }
 

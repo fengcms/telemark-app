@@ -46,6 +46,27 @@ export type MySummary = {
   lastCallTime: string | null;
 };
 
+export type AgentMonthly = {
+  userId: number;
+  username: string;
+  realName: string;
+  role: UserRole;
+  totalCalls: number;
+  calledCustomers: number;
+  connectedCalls: number;
+  connectedCustomers: number;
+  totalDuration: number;
+  avgDuration: number;
+  connectRate: number;
+  customerConnectRate: number;
+  firstCallTime: string | null;
+  lastCallTime: string | null;
+};
+
+export type AgentMonthlyResponse = PageResponse<AgentMonthly> & {
+  month: string;
+};
+
 export type CallReportPayload = {
   customerId: number;
   duration: number;

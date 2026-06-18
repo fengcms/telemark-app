@@ -1,5 +1,6 @@
 import { apiRequest, toQuery } from '@/api/client';
 import type {
+  AgentMonthlyResponse,
   AuthSession,
   CallReportPayload,
   CallReportResponse,
@@ -87,4 +88,14 @@ export function getMySummary() {
 
 export function getCommonCallRemarks() {
   return apiRequest<string[]>('/api/call-remarks/common');
+}
+
+export function getAgentMonthlyDashboard() {
+  return apiRequest<AgentMonthlyResponse>(
+    `/api/dashboard/agent-monthly${toQuery({
+      page: 0,
+      pagesize: 100,
+      sort: '-totalCalls',
+    })}`,
+  );
 }
