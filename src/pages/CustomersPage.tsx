@@ -27,6 +27,7 @@ export function CustomersPage() {
   const [submittedSearch, setSubmittedSearch] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>('phoneLike');
   const [pullDistance, setPullDistance] = useState(0);
+  const [debugShowFeedback, setDebugShowFeedback] = useState(false);
 
   const customerSearch = useMemo(
     () => ({
@@ -216,6 +217,15 @@ export function CustomersPage() {
           <p className="notice">{callFeedback.message}</p>
         ) : null}
 
+        {/* 调试按钮 - 样式调试完成后删除此按钮 */}
+        <button
+          className="debug-feedback-button"
+          onClick={() => setDebugShowFeedback(true)}
+          type="button"
+        >
+          🔧 调试：打开反馈面板
+        </button>
+
         <section className="card-list">
           {customersQuery.isLoading ? (
             <EmptyState title="正在加载客户..." />
@@ -250,7 +260,38 @@ export function CustomersPage() {
         </section>
       </div>
 
-      <FeedbackSheet {...callFeedback.feedbackSheetProps} />
+      <FeedbackSheet
+        {...callFeedback.feedbackSheetProps}
+        customer={
+          debugShowFeedback
+            ? {
+                id: 999,
+                phone: '13800138000',
+                name: '测试客户',
+                company: '测试公司',
+                type: 0,
+                status: 0,
+                remark: null,
+                ownerId: 1,
+                batchId: 1,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+              }
+            : callFeedback.feedbackSheetProps.customer
+        }
+        open={debugShowFeedback || callFeedback.feedbackSheetProps.open}
+        onClose={() => {
+          setDebugShowFeedback(false);
+          callFeedback.feedbackSheetProps.onClose();
+        }}
+        onSubmit={(value) => {
+          if (debugShowFeedback) {
+            setDebugShowFeedback(false);
+            return;
+          }
+          callFeedback.feedbackSheetProps.onSubmit(value);
+        }}
+      />
     </>
   );
 }
