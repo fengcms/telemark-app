@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { reportCall } from '@/api/endpoints';
 import type { FeedbackSubmitValue } from '@/components/FeedbackSheet';
 import {
-  createManualCallEntry,
   getLatestCallForNumber,
   requestCallLogPermission,
 } from '@/mobile/callLog';
@@ -19,6 +18,9 @@ export function useCallFeedback() {
     null,
   );
   const [duration, setDuration] = useState(0);
+  const [durationSource, setDurationSource] = useState<'call-log' | 'missing'>(
+    'missing',
+  );
   const [startedAt, setStartedAt] = useState<string | undefined>();
   const [endedAt, setEndedAt] = useState<string | undefined>();
   const [message, setMessage] = useState('');
@@ -27,6 +29,7 @@ export function useCallFeedback() {
     setFeedbackCustomer(null);
     setActiveCall(null);
     setDuration(0);
+    setDurationSource('missing');
     setStartedAt(undefined);
     setEndedAt(undefined);
   }
@@ -64,13 +67,20 @@ export function useCallFeedback() {
       call.customer.phone,
       call.startedAt,
     );
-    const fallback = createManualCallEntry(call.startedAt);
-    const entry = nativeEntry ?? fallback;
 
     setFeedbackCustomer(call.customer);
-    setStartedAt(entry.startedAt);
-    setEndedAt(entry.endedAt);
-    setDuration(entry.duration);
+    if (nativeEntry) {
+      setStartedAt(nativeEntry.startedAt);
+      setEndedAt(nativeEntry.endedAt);
+      setDuration(nativeEntry.duration);
+      setDurationSource('call-log');
+      return;
+    }
+
+    setStartedAt(call.startedAt);
+    setEndedAt(new Date().toISOString());
+    setDuration(0);
+    setDurationSource('missing');
   }, []);
 
   function handleSubmit(value: FeedbackSubmitValue) {
@@ -118,6 +128,7 @@ export function useCallFeedback() {
     feedbackSheetProps: {
       customer: feedbackCustomer,
       defaultDuration: duration,
+      durationSource,
       onClose: closeFeedback,
       onSubmit: handleSubmit,
       open: Boolean(feedbackCustomer),

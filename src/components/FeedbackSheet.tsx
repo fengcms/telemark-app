@@ -31,6 +31,7 @@ export type FeedbackSubmitValue = {
 export function FeedbackSheet({
   customer,
   defaultDuration,
+  durationSource = 'call-log',
   open,
   onClose,
   onSubmit,
@@ -38,6 +39,7 @@ export function FeedbackSheet({
 }: {
   customer: Customer | null;
   defaultDuration: number;
+  durationSource?: 'call-log' | 'missing';
   open: boolean;
   onClose: () => void;
   onSubmit: (value: FeedbackSubmitValue) => void;
@@ -148,6 +150,11 @@ export function FeedbackSheet({
           <span>通话时长</span>
           <strong>{formatDuration(visibleDuration)}</strong>
         </div>
+        {durationSource === 'missing' ? (
+          <p className="field-error">
+            未读取到真实通话记录，通话时长按 0 秒提交。
+          </p>
+        ) : null}
 
         <div className="result-grid">
           {resultOptions.map((option) => (

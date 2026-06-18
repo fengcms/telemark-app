@@ -18,7 +18,6 @@ export function CustomerCard({
           <div className="customer-title-row">
             <h3>{customer.name}</h3>
             <TypeChip type={customer.type} />
-             
           </div>
           {onCall ? (
             <button
@@ -35,7 +34,6 @@ export function CustomerCard({
           )}
         </div>
         <div className="customer-actions">
-         
           {onCall ? (
             <button
               className="call-button"

@@ -47,15 +47,3 @@ export async function getLatestCallForNumber(phone: string, since?: string) {
     return null;
   }
 }
-
-export function createManualCallEntry(startedAt: string) {
-  const start = new Date(startedAt).getTime();
-  const end = Date.now();
-  const duration = Math.max(0, Math.round((end - start) / 1000));
-
-  return {
-    duration,
-    startedAt,
-    endedAt: new Date(end).toISOString(),
-  };
-}
