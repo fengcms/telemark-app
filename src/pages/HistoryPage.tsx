@@ -62,14 +62,14 @@ export function HistoryPage() {
           </div>
 
           <div className="history-tabs">
-            {typeFilters.map((value) => (
+            {typeFilters.reverse().map((value) => (
               <button
                 className={type === value ? 'active' : ''}
                 key={String(value)}
                 onClick={() => setType(value)}
                 type="button"
               >
-                {value === 'all' ? '全部类型' : typeText[value]}
+                {value === 'all' ? '全部' : typeText[value]}
               </button>
             ))}
           </div>

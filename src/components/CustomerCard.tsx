@@ -18,6 +18,7 @@ export function CustomerCard({
           <div className="customer-title-row">
             <h3>{customer.name}</h3>
             <TypeChip type={customer.type} />
+             
           </div>
           {onCall ? (
             <button
@@ -34,7 +35,7 @@ export function CustomerCard({
           )}
         </div>
         <div className="customer-actions">
-          {history ? <StatusChip status={customer.status} /> : null}
+         
           {onCall ? (
             <button
               className="call-button"
@@ -56,6 +57,7 @@ export function CustomerCard({
       <div className="last-contact-line">
         <Clock3 aria-hidden size={16} />
         <span>{history ? '最近更新' : '从未拨打'}</span>
+        {history ? <StatusChip status={customer.status} /> : null}
       </div>
 
       {customer.remark ? <p className="remark">{customer.remark}</p> : null}

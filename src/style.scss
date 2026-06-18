@@ -500,7 +500,7 @@ a {
 .history-tabs,
 .quick-remarks {
   display: flex;
-  gap: 10px;
+  gap: 6px;
   overflow-x: auto;
   padding-bottom: 2px;
 }
@@ -515,12 +515,13 @@ a {
 .quick-remarks button {
   flex: 0 0 auto;
   min-height: 36px;
-  padding: 0 16px;
+  padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: 999px;
   color: #5f6b7c;
   background: #ffffff;
   font-weight: 700;
+  font-size: 12px;
 }
 
 .sort-pills .active,
@@ -1332,14 +1333,15 @@ a {
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  border-radius: 24px;
+  border-radius: 16px;
   background: #ffffff;
   box-shadow: 0 24px 72px rgba(15, 23, 42, 0.32);
+  padding: 22px;
+  gap: 18px;
 
   header {
     @include flex-center;
     justify-content: space-between;
-    padding: 18px 18px 0;
 
     h2 {
       margin: 0;
@@ -1456,4 +1458,55 @@ a {
   &:active {
     background: #d64545;
   }
+}
+
+.version-copy {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 18px;
+  color: #5f6b7c;
+  background: #f6f8fc;
+  line-height: 1.7;
+}
+
+.version-copy strong {
+  color: var(--primary);
+  font-size: 22px;
+}
+
+.version-copy p {
+  margin: 0;
+}
+
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.modal-header p,
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-header p {
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.modal-header h2 {
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.app-modal .primary-button,
+.app-modal .danger-button {
+  width: 100%;
 }

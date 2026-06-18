@@ -138,11 +138,10 @@ export function ProfilePage() {
             <Info aria-hidden size={24} />
           </span>
           <strong>关于版本</strong>
-          <em>v2.4.0</em>
           <ChevronRight aria-hidden size={24} />
         </button>
         <button
-          className="setting-row"
+          className="setting-row version-row"
           onClick={() => setClearCacheModalOpen(true)}
           type="button"
         >
