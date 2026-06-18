@@ -2,8 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Ban, CheckCircle2, PhoneMissed, Save, SignalZero } from 'lucide-react';
 import { type PointerEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { getCommonCallRemarks } from '@/api/endpoints';
+import { typeText } from '@/components/StatusChip';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import type { CallResult, Customer } from '@/types';
+import type { CallResult, Customer, CustomerType } from '@/types';
 import { formatDuration } from '@/utils/format';
 
 const resultOptions: Array<{
@@ -18,10 +19,13 @@ const resultOptions: Array<{
   { value: 4, label: '空号停机', tone: 'invalid', Icon: SignalZero },
 ];
 
+const customerTypeOptions: CustomerType[] = [-1, 0, 1, 2];
+
 export type FeedbackSubmitValue = {
   callResult: CallResult;
   duration: number;
   callRemark?: string;
+  customerType: CustomerType;
 };
 
 export function FeedbackSheet({
@@ -40,6 +44,9 @@ export function FeedbackSheet({
   submitting?: boolean;
 }) {
   const [callResult, setCallResult] = useState<CallResult>(1);
+  const [customerType, setCustomerType] = useState<CustomerType>(
+    customer?.type ?? 0,
+  );
   const [duration, setDuration] = useState(defaultDuration);
   const [callRemark, setCallRemark] = useState('');
   const dragStartY = useRef<number | null>(null);
@@ -68,9 +75,10 @@ export function FeedbackSheet({
     if (open) {
       setDuration(defaultDuration);
       setCallResult(1);
+      setCustomerType(customer?.type ?? 0);
       setCallRemark('');
     }
-  }, [defaultDuration, open]);
+  }, [customer?.type, defaultDuration, open]);
 
   if (!open || !customer) {
     return null;
@@ -106,6 +114,7 @@ export function FeedbackSheet({
       callResult,
       duration: visibleDuration,
       callRemark: isConnected ? trimmedRemark : undefined,
+      customerType,
     });
   }
 
@@ -163,6 +172,22 @@ export function FeedbackSheet({
               <strong>{option.label}</strong>
             </button>
           ))}
+        </div>
+
+        <div className="customer-type-panel">
+          <span>线索类型</span>
+          <div className="customer-type-grid">
+            {customerTypeOptions.map((type) => (
+              <button
+                className={customerType === type ? 'active' : ''}
+                key={type}
+                onClick={() => setCustomerType(type)}
+                type="button"
+              >
+                {typeText[type]}
+              </button>
+            ))}
+          </div>
         </div>
 
         {isConnected ? (

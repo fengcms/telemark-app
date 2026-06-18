@@ -13,7 +13,7 @@ import { useOnlineSync } from '@/hooks/useOnlineSync';
 import {
   getPendingReports,
   getReportsMissingRemarks,
-  updatePendingReportRemarks,
+  updatePendingReportRequiredInfo,
 } from '@/offline/callQueue';
 import type { PendingCallReport } from '@/types';
 
@@ -42,8 +42,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     sync.mutate();
   }
 
-  function handleSavePendingRemarks(remarks: Record<string, string>) {
-    updatePendingReportRemarks(remarks);
+  function handleSavePendingRemarks(
+    value: Parameters<typeof updatePendingReportRequiredInfo>[0],
+  ) {
+    updatePendingReportRequiredInfo(value);
     setReportsNeedingRemarks([]);
     sync.mutate();
   }

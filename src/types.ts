@@ -14,7 +14,7 @@ export type AuthSession = {
 };
 
 export type CustomerStatus = 0 | 1 | 2 | 3 | 4;
-export type CustomerType = 0 | 1;
+export type CustomerType = -1 | 0 | 1 | 2;
 export type CallResult = 1 | 2 | 3 | 4;
 
 export type Customer = {
@@ -72,6 +72,7 @@ export type CallReportPayload = {
   duration: number;
   callResult: CallResult;
   callRemark?: string;
+  customerType: CustomerType;
   clientRequestId: string;
   startedAt?: string;
   endedAt?: string;

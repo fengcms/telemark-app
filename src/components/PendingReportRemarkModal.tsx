@@ -1,7 +1,8 @@
 import { Save, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { typeText } from '@/components/StatusChip';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
-import type { CallResult, PendingCallReport } from '@/types';
+import type { CallResult, CustomerType, PendingCallReport } from '@/types';
 import { formatDateTime, formatDuration } from '@/utils/format';
 
 const resultLabels: Record<CallResult, string> = {
@@ -11,13 +12,18 @@ const resultLabels: Record<CallResult, string> = {
   4: '空号停机',
 };
 
+const customerTypeOptions: CustomerType[] = [-1, 0, 1, 2];
+
 export function PendingReportRemarkModal({
   onClose,
   onSave,
   reports,
 }: {
   onClose: () => void;
-  onSave: (remarks: Record<string, string>) => void;
+  onSave: (value: {
+    customerTypes: Record<string, CustomerType>;
+    remarks: Record<string, string>;
+  }) => void;
   reports: PendingCallReport[];
 }) {
   const [remarks, setRemarks] = useState<Record<string, string>>(() =>
@@ -28,13 +34,30 @@ export function PendingReportRemarkModal({
       ]),
     ),
   );
+  const [customerTypes, setCustomerTypes] = useState<
+    Record<string, CustomerType>
+  >(() =>
+    Object.fromEntries(
+      reports.map((report) => [
+        report.clientRequestId,
+        report.customerType ?? 0,
+      ]),
+    ),
+  );
 
   useBodyScrollLock(true);
 
   const canSave = useMemo(
     () =>
-      reports.every((report) => remarks[report.clientRequestId]?.trim().length),
-    [remarks, reports],
+      reports.every((report) => {
+        const hasType = customerTypes[report.clientRequestId] !== undefined;
+        const hasRemark =
+          report.callResult !== 1 ||
+          Boolean(remarks[report.clientRequestId]?.trim());
+
+        return hasType && hasRemark;
+      }),
+    [customerTypes, remarks, reports],
   );
 
   function handleSave() {
@@ -42,7 +65,7 @@ export function PendingReportRemarkModal({
       return;
     }
 
-    onSave(remarks);
+    onSave({ customerTypes, remarks });
   }
 
   return (
@@ -55,7 +78,7 @@ export function PendingReportRemarkModal({
         <header className="modal-header">
           <div>
             <p>离线补传</p>
-            <h2>补充通话备注</h2>
+            <h2>补充必填信息</h2>
           </div>
           <button
             aria-label="关闭"
@@ -69,7 +92,7 @@ export function PendingReportRemarkModal({
 
         <p className="pending-remark-copy">
           有 {reports.length}{' '}
-          条待补传通话记录缺少备注。补充完整后，系统会继续上传。
+          条待补传通话记录缺少备注或线索类型。补充完整后，系统会继续上传。
         </p>
 
         <div className="pending-remark-list">
@@ -89,20 +112,45 @@ export function PendingReportRemarkModal({
                 {formatDuration(report.duration)} ·{' '}
                 {formatDateTime(report.endedAt ?? report.startedAt ?? null)}
               </p>
-              <label className="field">
-                <span>备注记录</span>
-                <textarea
-                  onChange={(event) =>
-                    setRemarks((current) => ({
-                      ...current,
-                      [report.clientRequestId]: event.target.value,
-                    }))
-                  }
-                  placeholder="请补充客户情况、跟进结果或下次联系安排"
-                  rows={3}
-                  value={remarks[report.clientRequestId] ?? ''}
-                />
-              </label>
+
+              <div className="pending-type-grid">
+                {customerTypeOptions.map((type) => (
+                  <button
+                    className={
+                      customerTypes[report.clientRequestId] === type
+                        ? 'active'
+                        : ''
+                    }
+                    key={type}
+                    onClick={() =>
+                      setCustomerTypes((current) => ({
+                        ...current,
+                        [report.clientRequestId]: type,
+                      }))
+                    }
+                    type="button"
+                  >
+                    {typeText[type]}
+                  </button>
+                ))}
+              </div>
+
+              {report.callResult === 1 ? (
+                <label className="field">
+                  <span>备注记录</span>
+                  <textarea
+                    onChange={(event) =>
+                      setRemarks((current) => ({
+                        ...current,
+                        [report.clientRequestId]: event.target.value,
+                      }))
+                    }
+                    placeholder="请补充客户情况、跟进结果或下次联系安排"
+                    rows={3}
+                    value={remarks[report.clientRequestId] ?? ''}
+                  />
+                </label>
+              ) : null}
             </article>
           ))}
         </div>

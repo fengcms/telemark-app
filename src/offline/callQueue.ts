@@ -1,5 +1,9 @@
 import { reportCall } from '@/api/endpoints';
-import type { CallReportPayload, PendingCallReport } from '@/types';
+import type {
+  CallReportPayload,
+  CustomerType,
+  PendingCallReport,
+} from '@/types';
 
 const QUEUE_KEY = 'telemark.call-report.queue';
 
@@ -23,25 +27,39 @@ function savePendingReports(reports: PendingCallReport[]) {
 
 export function getReportsMissingRemarks() {
   return getPendingReports().filter(
-    (report) => report.callResult === 1 && !report.callRemark?.trim(),
+    (report) =>
+      (report.callResult === 1 && !report.callRemark?.trim()) ||
+      report.customerType === undefined,
   );
 }
 
-export function updatePendingReportRemarks(remarks: Record<string, string>) {
+export function updatePendingReportRequiredInfo({
+  customerTypes,
+  remarks,
+}: {
+  customerTypes: Record<string, CustomerType>;
+  remarks: Record<string, string>;
+}) {
   const reports = getPendingReports();
 
   savePendingReports(
     reports.map((report) => {
       const remark = remarks[report.clientRequestId]?.trim();
+      const customerType = customerTypes[report.clientRequestId];
 
-      if (!remark) {
-        return report;
+      const nextReport = {
+        ...report,
+      };
+
+      if (remark) {
+        nextReport.callRemark = remark;
       }
 
-      return {
-        ...report,
-        callRemark: remark,
-      };
+      if (customerType !== undefined) {
+        nextReport.customerType = customerType;
+      }
+
+      return nextReport;
     }),
   );
 }
@@ -75,7 +93,10 @@ export async function flushPendingReports() {
   for (const pending of reports) {
     const callRemark = pending.callRemark?.trim();
 
-    if (pending.callResult === 1 && !callRemark) {
+    if (
+      (pending.callResult === 1 && !callRemark) ||
+      pending.customerType === undefined
+    ) {
       failed.push(pending);
       continue;
     }
@@ -86,6 +107,7 @@ export async function flushPendingReports() {
         duration: pending.duration,
         callResult: pending.callResult,
         callRemark: pending.callResult === 1 ? callRemark : undefined,
+        customerType: pending.customerType,
         clientRequestId: pending.clientRequestId,
         startedAt: pending.startedAt,
         endedAt: pending.endedAt,

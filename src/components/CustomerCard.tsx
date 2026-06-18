@@ -19,22 +19,34 @@ export function CustomerCard({
             <h3>{customer.name}</h3>
             <TypeChip type={customer.type} />
           </div>
-          <a className="phone-link" href={`tel:${customer.phone}`}>
-            {customer.phone}
-          </a>
+          {onCall ? (
+            <button
+              className="phone-link phone-link-button"
+              onClick={() => onCall(customer)}
+              type="button"
+            >
+              {customer.phone}
+            </button>
+          ) : (
+            <a className="phone-link" href={`tel:${customer.phone}`}>
+              {customer.phone}
+            </a>
+          )}
         </div>
-        {!history && onCall ? (
-          <button
-            className="call-button"
-            onClick={() => onCall(customer)}
-            type="button"
-          >
-            <PhoneCall aria-hidden size={20} />
-            拨打
-          </button>
-        ) : (
-          <StatusChip status={customer.status} />
-        )}
+        <div className="customer-actions">
+          {history ? <StatusChip status={customer.status} /> : null}
+          {onCall ? (
+            <button
+              className="call-button"
+              onClick={() => onCall(customer)}
+              type="button"
+            >
+              <PhoneCall aria-hidden size={20} />
+              拨打
+            </button>
+          ) : null}
+          {!history && !onCall ? <StatusChip status={customer.status} /> : null}
+        </div>
       </div>
 
       <div className="company-line">

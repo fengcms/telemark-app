@@ -463,6 +463,11 @@ a {
   padding-bottom: 2px;
 }
 
+.history-filter-group {
+  display: grid;
+  gap: 8px;
+}
+
 .sort-pills button,
 .history-tabs button,
 .quick-remarks button {
@@ -570,11 +575,26 @@ a {
 .phone-link {
   display: inline-block;
   margin-top: 6px;
+  padding: 0;
+  border: 0;
   color: var(--primary);
+  background: transparent;
   font-size: 22px;
   font-weight: 900;
   letter-spacing: 1px;
   text-decoration: none;
+}
+
+.phone-link-button {
+  cursor: pointer;
+}
+
+.customer-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .call-button {
@@ -628,6 +648,11 @@ a {
   font-weight: 800;
 }
 
+.type--1 {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
 .type-0,
 .status-0 {
   color: #64748b;
@@ -638,6 +663,11 @@ a {
 .status-1 {
   color: #047857;
   background: #d9f8e9;
+}
+
+.type-2 {
+  color: #b45309;
+  background: #fff5df;
 }
 
 .status-2 {
@@ -918,6 +948,45 @@ a {
 
 .result-tile.active {
   outline: 3px solid rgba(11, 92, 255, 0.12);
+}
+
+.customer-type-panel {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.customer-type-panel > span,
+.pending-remark-item .field span {
+  color: #364152;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.customer-type-grid,
+.pending-type-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.customer-type-grid button,
+.pending-type-grid button {
+  min-height: 34px;
+  padding: 0 6px;
+  border: 1px solid #dce3ee;
+  border-radius: 999px;
+  color: #536174;
+  background: #f8fafc;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.customer-type-grid button.active,
+.pending-type-grid button.active {
+  border-color: rgba(11, 92, 255, 0.3);
+  color: var(--primary);
+  background: var(--primary-soft);
 }
 
 .feedback-sheet .field {

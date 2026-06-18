@@ -1,34 +1,12 @@
-import { App as CapacitorApp } from '@capacitor/app';
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { RefreshCcw, Search } from 'lucide-react';
-import {
-  type TouchEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { getMyCustomers, getMySummary, reportCall } from '@/api/endpoints';
+import { type TouchEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { getMyCustomers, getMySummary } from '@/api/endpoints';
 import { CustomerCard } from '@/components/CustomerCard';
 import { EmptyState } from '@/components/EmptyState';
-import {
-  FeedbackSheet,
-  type FeedbackSubmitValue,
-} from '@/components/FeedbackSheet';
+import { FeedbackSheet } from '@/components/FeedbackSheet';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  createManualCallEntry,
-  getLatestCallForNumber,
-  requestCallLogPermission,
-} from '@/mobile/callLog';
-import { queueCallReport } from '@/offline/callQueue';
-import type { ActiveCall, Customer } from '@/types';
+import { useCallFeedback } from '@/hooks/useCallFeedback';
 import { formatDuration, getErrorMessage } from '@/utils/format';
 
 type SearchMode = 'phoneLike' | 'nameLike' | 'companyLike';
@@ -42,21 +20,13 @@ const searchModes: Array<{ value: SearchMode; label: string }> = [
 
 export function CustomersPage() {
   const { session } = useAuth();
-  const queryClient = useQueryClient();
+  const callFeedback = useCallFeedback();
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
   const touchStartY = useRef<number | null>(null);
   const [searchText, setSearchText] = useState('');
   const [submittedSearch, setSubmittedSearch] = useState('');
   const [searchMode, setSearchMode] = useState<SearchMode>('phoneLike');
   const [pullDistance, setPullDistance] = useState(0);
-  const [activeCall, setActiveCall] = useState<ActiveCall | null>(null);
-  const [feedbackCustomer, setFeedbackCustomer] = useState<Customer | null>(
-    null,
-  );
-  const [duration, setDuration] = useState(0);
-  const [startedAt, setStartedAt] = useState<string | undefined>();
-  const [endedAt, setEndedAt] = useState<string | undefined>();
-  const [message, setMessage] = useState('');
 
   const customerSearch = useMemo(
     () => ({
@@ -88,25 +58,6 @@ export function CustomersPage() {
     queryFn: getMySummary,
   });
 
-  const reportMutation = useMutation({
-    mutationFn: reportCall,
-    onSuccess: async () => {
-      setMessage('通话结果已提交');
-      closeFeedback();
-      await queryClient.invalidateQueries({ queryKey: ['customers'] });
-      await queryClient.invalidateQueries({ queryKey: ['history'] });
-      await queryClient.invalidateQueries({ queryKey: ['summary'] });
-    },
-    onError: (error, payload) => {
-      queueCallReport(payload, {
-        customerName: feedbackCustomer?.name,
-        phone: feedbackCustomer?.phone,
-      });
-      setMessage(`网络不可用，已离线保存：${getErrorMessage(error)}`);
-      closeFeedback();
-    },
-  });
-
   const customers =
     customersQuery.data?.pages.flatMap((page) => page.list) ?? [];
   const summary = summaryQuery.data;
@@ -120,79 +71,9 @@ export function CustomersPage() {
     return `${Math.round((summary.connectedCalls / summary.totalCalls) * 100)}%`;
   }, [summary]);
 
-  function closeFeedback() {
-    setFeedbackCustomer(null);
-    setActiveCall(null);
-    setDuration(0);
-    setStartedAt(undefined);
-    setEndedAt(undefined);
-  }
-
   function handleSearch() {
     setSubmittedSearch(searchText.trim());
   }
-
-  async function handleCall(customer: Customer) {
-    const nextStartedAt = new Date().toISOString();
-    setMessage('');
-    setActiveCall({ customer, startedAt: nextStartedAt });
-    await requestCallLogPermission();
-    window.location.href = `tel:${customer.phone}`;
-  }
-
-  const openFeedbackFromCall = useCallback(async (call: ActiveCall) => {
-    const nativeEntry = await getLatestCallForNumber(
-      call.customer.phone,
-      call.startedAt,
-    );
-    const fallback = createManualCallEntry(call.startedAt);
-    const entry = nativeEntry ?? fallback;
-
-    setFeedbackCustomer(call.customer);
-    setStartedAt(entry.startedAt);
-    setEndedAt(entry.endedAt);
-    setDuration(entry.duration);
-  }, []);
-
-  function handleSubmit(value: FeedbackSubmitValue) {
-    if (!feedbackCustomer) {
-      return;
-    }
-
-    reportMutation.mutate({
-      customerId: feedbackCustomer.id,
-      duration: value.duration,
-      callResult: value.callResult,
-      callRemark: value.callRemark,
-      clientRequestId: crypto.randomUUID(),
-      startedAt,
-      endedAt,
-    });
-  }
-
-  useEffect(() => {
-    const setup = async () => {
-      const handle = await CapacitorApp.addListener(
-        'appStateChange',
-        ({ isActive }) => {
-          if (isActive && activeCall) {
-            void openFeedbackFromCall(activeCall);
-          }
-        },
-      );
-
-      return handle;
-    };
-
-    let cleanup: (() => void) | undefined;
-    void setup().then((handle) => {
-      cleanup = () => {
-        void handle.remove();
-      };
-    });
-
-    return () => cleanup?.();
-  }, [activeCall, openFeedbackFromCall]);
 
   useEffect(() => {
     const node = loadMoreRef.current;
@@ -331,7 +212,9 @@ export function CustomersPage() {
           ))}
         </div>
 
-        {message ? <p className="notice">{message}</p> : null}
+        {callFeedback.message ? (
+          <p className="notice">{callFeedback.message}</p>
+        ) : null}
 
         <section className="card-list">
           {customersQuery.isLoading ? (
@@ -347,7 +230,7 @@ export function CustomersPage() {
             <CustomerCard
               customer={customer}
               key={customer.id}
-              onCall={handleCall}
+              onCall={callFeedback.handleCall}
             />
           ))}
           <div className="load-more-sentinel" ref={loadMoreRef}>
@@ -367,14 +250,7 @@ export function CustomersPage() {
         </section>
       </div>
 
-      <FeedbackSheet
-        customer={feedbackCustomer}
-        defaultDuration={duration}
-        onClose={closeFeedback}
-        onSubmit={handleSubmit}
-        open={Boolean(feedbackCustomer)}
-        submitting={reportMutation.isPending}
-      />
+      <FeedbackSheet {...callFeedback.feedbackSheetProps} />
     </>
   );
 }
