@@ -1,41 +1,44 @@
 {
-	"name": "telemark-app",
-	"private": true,
-	"version": "0.0.0",
-	"type": "module",
-	"scripts": {
-		"dev": "vite",
-		"build": "tsc -b && vite build",
-		"preview": "vite preview",
-		"lint": "biome lint ./src",
-		"format": "biome format --write ./src",
-		"check": "biome check --write ./src",
-		"sync": "npx cap sync"
-	},
-	"dependencies": {
-		"@capacitor/app": "^8.1.0",
-		"@capacitor/core": "^8.4.0",
-		"@capacitor/network": "^8.0.1",
-		"@haige/capacitor-call-log": "file:plugins/capacitor-call-log",
-		"@tanstack/react-query": "^5.101.0",
-		"lucide-react": "^1.18.0",
-		"react": "^19.2.6",
-		"react-dom": "^19.2.6",
-		"react-router-dom": "^7.17.0"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.5.0",
-		"@capacitor/android": "^8.4.0",
-		"@capacitor/cli": "^8.4.0",
-		"@types/node": "^24.12.3",
-		"@types/react": "^19.2.14",
-		"@types/react-dom": "^19.2.3",
-		"@vitejs/plugin-react": "^6.0.1",
-		"cordova-res": "^0.15.4",
-		"globals": "^17.6.0",
-		"sass": "^1.101.0",
-		"sharp": "^0.35.1",
-		"typescript": "~6.0.2",
-		"vite": "^8.0.12"
-	}
+  "name": "telemark-app",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "lint": "biome lint ./src",
+    "format": "biome format --write ./src",
+    "check": "biome check --write ./src",
+    "sync": "npx cap sync",
+    "apk:build": "pnpm build && pnpm sync && cd android && ./gradlew assembleDebug && cd ..",
+    "apk:install": "adb install android/app/build/outputs/apk/debug/app-debug.apk",
+    "adb:reset": "adb kill-server && sleep 1 && adb start-server && sleep 1 && adb devices"
+  },
+  "dependencies": {
+    "@capacitor/app": "^8.1.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/network": "^8.0.1",
+    "@haige/capacitor-call-log": "file:plugins/capacitor-call-log",
+    "@tanstack/react-query": "^5.101.0",
+    "lucide-react": "^1.18.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "react-router-dom": "^7.17.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.0",
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@types/node": "^24.12.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "cordova-res": "^0.15.4",
+    "globals": "^17.6.0",
+    "sass": "^1.101.0",
+    "sharp": "^0.35.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.12"
+  }
 }
