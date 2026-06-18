@@ -376,7 +376,7 @@ curl 'http://localhost:8787/api/my-customers/history?page=0&pagesize=10&sort=-up
 | `customerId` | 是 | 客户 ID |
 | `duration` | 是 | 通话时长（秒），非负整数 |
 | `callResult` | 是 | 通话结果：`1` 已接听 / `2` 无人接听 / `3` 拒接 / `4` 空号停机 |
-| `callRemark` | 否 | 通话备注 |
+| `callRemark` | 条件必填 | 仅 `callResult=1`（已接听）时必填；其他结果不要传，后端会忽略并保存为空 |
 | `clientRequestId` | 否 | 幂等键，防止网络重试导致重复提交，建议每次上报都传 |
 | `startedAt` | 否 | 通话开始时间（ISO 8601） |
 | `endedAt` | 否 | 通话结束时间（ISO 8601） |
@@ -408,10 +408,17 @@ curl 'http://localhost:8787/api/my-customers/history?page=0&pagesize=10&sort=-up
 后端自动副作用（APP 无需额外请求）：
 
 - 更新客户状态为 `callResult`
-- 更新客户备注为 `callRemark`
+- 当 `callResult=1`（已接听）时，更新客户备注为 `callRemark`
+- 当 `callResult!=1` 时，本次通话日志备注为空，且不会更新客户已有备注
 - 当 `callResult=1`（已接听）时，自动将客户类型升级为 `1`（意向客户）
 - 自动累加今日战报数据（总拨打数、接通数、通话时长等）
 - 该客户从"待拨列表"自动消失，进入"已拨历史"
+
+APP 表单规则：
+
+- 用户选择"已接听"时，展示备注输入框，并要求填写非空备注
+- 用户选择"无人接听"、"拒接"、"空号停机"等其他结果时，隐藏备注输入框并清空本地备注
+- 提交其他结果时不要传 `callRemark`
 
 幂等规则：
 
@@ -590,3 +597,143 @@ curl 'http://localhost:8787/api/call-remarks/common' \
 - 通话记录不可篡改，上报后不可删除
 - `clientRequestId` 建议每次上报都传，防止网络抖动导致重复提交
 - 密码修改后当前 Token 仍有效，无需重新登录
+
+### GET /api/dashboard/agent-monthly
+
+员工月度呼叫统计。`role=1` / `role=2` 可查看员工月度列表；`role=3` 普通员工也可调用，但只能读取自己的月度数据。
+
+查询参数：
+
+| 参数 | 必填 | 说明 |
+|------|------|------|
+| `month` | 否 | 统计月份，格式 `YYYY-MM`；不传时使用 `Asia/Shanghai` 当前业务月份 |
+| `page` | 否 | 从 `0` 开始，默认 `0` |
+| `pagesize` | 否 | 默认 `10`，最大 `100`，超过时截断为 `100` |
+| `sort` | 否 | 默认 `-totalCalls`；`sort=totalCalls` 为升序，`sort=-totalCalls` 为降序 |
+| `userId` | 否 | 按员工 ID 精确筛选；`role=3` 传入该参数也会被强制改为当前登录用户 ID |
+| `username-like` | 否 | 按用户名模糊筛选 |
+| `realName-like` | 否 | 按真实姓名模糊筛选 |
+
+排序白名单：
+
+```txt
+userId
+totalCalls
+calledCustomers
+connectedCalls
+connectedCustomers
+totalDuration
+avgDuration
+connectRate
+customerConnectRate
+firstCallTime
+lastCallTime
+```
+
+响应：
+
+```json
+{
+  "month": "2026-06",
+  "page": 0,
+  "pageSize": 20,
+  "total": 1,
+  "list": [
+    {
+      "userId": 3,
+      "username": "sales01",
+      "realName": "销售一号",
+      "role": 3,
+      "totalCalls": 188,
+      "calledCustomers": 120,
+      "connectedCalls": 56,
+      "connectedCustomers": 45,
+      "totalDuration": 3600,
+      "avgDuration": 64.29,
+      "connectRate": 0.2979,
+      "customerConnectRate": 0.375,
+      "firstCallTime": "2026-06-01T01:15:30.000Z",
+      "lastCallTime": "2026-06-17T09:42:18.000Z"
+    }
+  ]
+}
+```
+
+字段说明：
+
+| 字段 | 说明 |
+|------|------|
+| `totalCalls` | 本月总拨打次数，来自 `agent_daily_summaries.total_calls` 月度汇总 |
+| `calledCustomers` | 本月去重拨打客户/号码数，来自 `call_logs.customer_id` 去重统计 |
+| `connectedCalls` | 本月接通次数，来自 `agent_daily_summaries.connected_calls` 月度汇总 |
+| `connectedCustomers` | 本月去重接通客户/号码数，按 `call_logs.call_result = 1` 去重统计 |
+| `connectRate` | 次数口径接通率，`connectedCalls / totalCalls`；无拨打时为 `0` |
+| `customerConnectRate` | 号码口径接通率，`connectedCustomers / calledCustomers`；无拨打号码时为 `0` |
+| `avgDuration` | 平均接通通话时长，`totalDuration / connectedCalls`；无接通时为 `0` |
+
+业务规则：
+
+- 月度次数指标来自 `agent_daily_summaries`，适合快速汇总员工工作量
+- 月度号码数指标来自 `call_logs`，按 `Asia/Shanghai` 月初到下月月初范围统计
+- `role=3` 普通员工只能看到自己的月度数据，不能通过 `userId` 查询他人
+- 默认只返回当月有日报记录的用户
+- 用户已禁用时，历史月度数据仍继续显示
+- 不返回 `password_hash`
+- 不返回 `salt`
+
+错误响应：
+
+| 状态码 | 场景 |
+|--------|------|
+| 400 | `month`、`userId` 或 `sort` 参数不合法 |
+| 401 | 未登录、AccessToken 无效或用户已禁用 |
+| 403 | 角色不在 `1`、`2`、`3` 范围内 |
+
+curl：
+
+```bash
+curl 'http://localhost:8787/api/dashboard/agent-monthly?month=2026-06&page=0&pagesize=20&sort=-totalCalls' \
+  -H "Authorization: Bearer <adminOrManagerAccessToken>"
+```
+
+员工查看自己的月度统计：
+
+```bash
+curl 'http://localhost:8787/api/dashboard/agent-monthly?month=2026-06' \
+  -H "Authorization: Bearer <employeeAccessToken>"
+```
+
+
+## 常用客户反馈备注
+
+### GET /api/call-remarks/common
+
+需要 `Authorization: Bearer <accessToken>`。仅 `role=2` 或 `role=3` 可调用。
+
+这是 APP 通话反馈弹窗的快捷输入数据源。接口只返回启用中的备注字符串数组，按管理后台配置的排序返回。
+
+响应：
+
+```json
+[
+  "客户已接听，有明确意向",
+  "客户有意向，稍后回访",
+  "客户需要先看案例",
+  "无人接听，稍后再拨"
+]
+```
+
+业务规则：
+
+- 只返回管理后台启用中的备注
+- 返回值是字符串数组，不包裹 `list`
+- APP 可在打开反馈弹窗时请求，也可以登录后缓存到本地
+
+curl：
+
+```bash
+curl 'http://localhost:8787/api/call-remarks/common' \
+  -H "Authorization: Bearer <accessToken>"
+```
+
+---
