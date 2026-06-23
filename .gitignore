@@ -23,3 +23,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Android signing keys (安全：不要提交到版本控制)
+*.keystore
+android/telemark-release.keystore
