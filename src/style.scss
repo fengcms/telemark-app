@@ -77,6 +77,12 @@ $shadow: 0 16px 36px rgba(44, 73, 132, 0.1);
   --shadow: #{$shadow};
 }
 
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
   min-width: 320px;

@@ -10,6 +10,7 @@ import {
 import { queueCallReport } from '@/offline/callQueue';
 import type { ActiveCall, Customer } from '@/types';
 import { getErrorMessage } from '@/utils/format';
+import { createClientRequestId } from '@/utils/id';
 
 export function useCallFeedback() {
   const queryClient = useQueryClient();
@@ -94,7 +95,7 @@ export function useCallFeedback() {
       callResult: value.callResult,
       callRemark: value.callRemark,
       customerType: value.customerType,
-      clientRequestId: crypto.randomUUID(),
+      clientRequestId: createClientRequestId(),
       startedAt,
       endedAt,
     });
