@@ -18,7 +18,7 @@ const statusFilters: Array<[CustomerStatus | 'all', string]> = [
   [4, '空号'],
 ];
 
-const typeFilters: Array<CustomerType | 'all'> = ['all', -1, 0, 1, 2];
+const typeFilters: Array<CustomerType | 'all'> = ['all', 2, 1, 0, -1];
 
 export function HistoryPage() {
   const callFeedback = useCallFeedback();
@@ -62,7 +62,7 @@ export function HistoryPage() {
           </div>
 
           <div className="history-tabs">
-            {typeFilters.reverse().map((value) => (
+            {typeFilters.map((value) => (
               <button
                 className={type === value ? 'active' : ''}
                 key={String(value)}
