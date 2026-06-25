@@ -217,15 +217,15 @@ export function CustomersPage() {
           <p className="notice">{callFeedback.message}</p>
         ) : null}
 
-        {/* 调试按钮 - 样式调试完成后删除此按钮 */}
+        {/* 调试按钮 - 样式调试完成后删除此按钮
         <button
           className="debug-feedback-button"
           onClick={() => setDebugShowFeedback(true)}
           type="button"
         >
           🔧 调试：打开反馈面板
-        </button>
-
+        </button> */}
+ 
         <section className="card-list">
           {customersQuery.isLoading ? (
             <EmptyState title="正在加载客户..." />
